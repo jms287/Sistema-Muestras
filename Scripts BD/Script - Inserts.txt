@@ -1,0 +1,456 @@
+-- INS€RT$
+CALL spSetProvincia(1, NULL, 'Azua');
+CALL spSetProvincia(1, NULL, 'Baoruco');
+CALL spSetProvincia(1, NULL, 'Barahona');
+CALL spSetProvincia(1, NULL, 'Dajabón');
+CALL spSetProvincia(1, NULL, 'Distrito Nacional');
+CALL spSetProvincia(1, NULL, 'Duarte');
+CALL spSetProvincia(1, NULL, 'El Seibo');
+CALL spSetProvincia(1, NULL, 'Elías Piña');
+CALL spSetProvincia(1, NULL, 'Espaillat');
+CALL spSetProvincia(1, NULL, 'Hato Mayor');
+CALL spSetProvincia(1, NULL, 'Hermanas Mirabal');
+CALL spSetProvincia(1, NULL, 'Independencia');
+CALL spSetProvincia(1, NULL, 'La Altagracia');
+CALL spSetProvincia(1, NULL, 'La Romana');
+CALL spSetProvincia(1, NULL, 'La Vega');
+CALL spSetProvincia(1, NULL, 'María Trinidad Sánchez');
+CALL spSetProvincia(1, NULL, 'Monseñor Nouel');
+CALL spSetProvincia(1, NULL, 'Monte Cristi');
+CALL spSetProvincia(1, NULL, 'Monte Plata');
+CALL spSetProvincia(1, NULL, 'Pedernales');
+CALL spSetProvincia(1, NULL, 'Peravia');
+CALL spSetProvincia(1, NULL, 'Puerto Plata');
+CALL spSetProvincia(1, NULL, 'Samaná');
+CALL spSetProvincia(1, NULL, 'San Cristóbal');
+CALL spSetProvincia(1, NULL, 'San José de Ocoa');
+CALL spSetProvincia(1, NULL, 'San Juan');
+CALL spSetProvincia(1, NULL, 'San Pedro de Macorís');
+CALL spSetProvincia(1, NULL, 'Sanchez Ramírez');
+CALL spSetProvincia(1, NULL, 'Santiago');
+CALL spSetProvincia(1, NULL, 'Santiago Rodríguez');
+CALL spSetProvincia(1, NULL, 'Santo Domingo');
+CALL spSetProvincia(1, NULL, 'Valverde');
+
+CALL spSetMunicipio(1, NULL, 'Azua', 1);
+CALL spSetMunicipio(1, NULL, 'Estebanía', 1);
+CALL spSetMunicipio(1, NULL, 'Guayabal', 1);
+CALL spSetMunicipio(1, NULL, 'Las Charcas', 1);
+CALL spSetMunicipio(1, NULL, 'Las Yayas de Viajama', 1);
+CALL spSetMunicipio(1, NULL, 'Padre las Casas', 1);
+CALL spSetMunicipio(1, NULL, 'Peralta', 1);
+CALL spSetMunicipio(1, NULL, 'Pueblo Viejo', 1);
+CALL spSetMunicipio(1, NULL, 'Sabana Yegua', 1);
+CALL spSetMunicipio(1, NULL, 'Tábara Arriba', 1);
+CALL spSetMunicipio(1, NULL, 'Galván', 2);
+CALL spSetMunicipio(1, NULL, 'Los Ríos', 2);
+CALL spSetMunicipio(1, NULL, 'Neiba', 2);
+CALL spSetMunicipio(1, NULL, 'Tamayo', 2);
+CALL spSetMunicipio(1, NULL, 'Villa Jaragua', 2);
+CALL spSetMunicipio(1, NULL, 'Barahona', 3);
+CALL spSetMunicipio(1, NULL, 'Cabral', 3);
+CALL spSetMunicipio(1, NULL, 'El Peñón', 3);
+CALL spSetMunicipio(1, NULL, 'Enriquillo', 3);
+CALL spSetMunicipio(1, NULL, 'Fundación', 3);
+CALL spSetMunicipio(1, NULL, 'Jaquimeyes', 3);
+CALL spSetMunicipio(1, NULL, 'La Ciénaga', 3);
+CALL spSetMunicipio(1, NULL, 'Las Salinas', 3);
+CALL spSetMunicipio(1, NULL, 'Paraíso', 3);
+CALL spSetMunicipio(1, NULL, 'Polo', 3);
+CALL spSetMunicipio(1, NULL, 'Vicente Noble', 3);
+CALL spSetMunicipio(1, NULL, 'Dajabón', 4);
+CALL spSetMunicipio(1, NULL, 'El Pino', 4);
+CALL spSetMunicipio(1, NULL, 'Loma de Cabrera', 4);
+CALL spSetMunicipio(1, NULL, 'Partido', 4);
+CALL spSetMunicipio(1, NULL, 'Restauración', 4);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo de Guzmán', 5);
+CALL spSetMunicipio(1, NULL, 'Arenoso', 6);
+CALL spSetMunicipio(1, NULL, 'Castillo', 6);
+CALL spSetMunicipio(1, NULL, 'Eugenio María de Hostos', 6);
+CALL spSetMunicipio(1, NULL, 'Las Guáranas', 6);
+CALL spSetMunicipio(1, NULL, 'Pimentel', 6);
+CALL spSetMunicipio(1, NULL, 'San Francisco de Macorís', 6);
+CALL spSetMunicipio(1, NULL, 'Villa Riva', 6);
+CALL spSetMunicipio(1, NULL, 'El Seibo', 7);
+CALL spSetMunicipio(1, NULL, 'Miches', 7);
+CALL spSetMunicipio(1, NULL, 'Bánica', 8);
+CALL spSetMunicipio(1, NULL, 'Comendador', 8);
+CALL spSetMunicipio(1, NULL, 'El Llano', 8);
+CALL spSetMunicipio(1, NULL, 'Hondo Valle', 8);
+CALL spSetMunicipio(1, NULL, 'Juan Santiago', 8);
+CALL spSetMunicipio(1, NULL, 'Pedro Santana', 8);
+CALL spSetMunicipio(1, NULL, 'Cayetano Germosén', 9);
+CALL spSetMunicipio(1, NULL, 'Gaspar Hernández', 9);
+CALL spSetMunicipio(1, NULL, 'Jamao al Norte', 9);
+CALL spSetMunicipio(1, NULL, 'Moca', 9);
+CALL spSetMunicipio(1, NULL, 'San Víctor', 9);
+CALL spSetMunicipio(1, NULL, 'El Valle', 10);
+CALL spSetMunicipio(1, NULL, 'Hato Mayor', 10);
+CALL spSetMunicipio(1, NULL, 'Sabana de la Mar', 10);
+CALL spSetMunicipio(1, NULL, 'Salcedo', 11);
+CALL spSetMunicipio(1, NULL, 'Tenares', 11);
+CALL spSetMunicipio(1, NULL, 'Villa Tapia', 11);
+CALL spSetMunicipio(1, NULL, 'Cristóbal', 12);
+CALL spSetMunicipio(1, NULL, 'Duvergé', 12);
+CALL spSetMunicipio(1, NULL, 'Jimaní', 12);
+CALL spSetMunicipio(1, NULL, 'La Descubierta', 12);
+CALL spSetMunicipio(1, NULL, 'Mella', 12);
+CALL spSetMunicipio(1, NULL, 'Postrer Río', 12);
+CALL spSetMunicipio(1, NULL, 'Higüey', 13);
+CALL spSetMunicipio(1, NULL, 'San Rafael del Yuma', 13);
+CALL spSetMunicipio(1, NULL, 'Guaymate', 14);
+CALL spSetMunicipio(1, NULL, 'La Romana', 14);
+CALL spSetMunicipio(1, NULL, 'Villa Hermosa', 14);
+CALL spSetMunicipio(1, NULL, 'Constanza', 15);
+CALL spSetMunicipio(1, NULL, 'Jarabacoa', 15);
+CALL spSetMunicipio(1, NULL, 'Jima Abajo', 15);
+CALL spSetMunicipio(1, NULL, 'La Vega', 15);
+CALL spSetMunicipio(1, NULL, 'Cabrera', 16);
+CALL spSetMunicipio(1, NULL, 'El Factor', 16);
+CALL spSetMunicipio(1, NULL, 'Nagua', 16);
+CALL spSetMunicipio(1, NULL, 'Río San Juan', 16);
+CALL spSetMunicipio(1, NULL, 'Bonao', 17);
+CALL spSetMunicipio(1, NULL, 'Maimón', 17);
+CALL spSetMunicipio(1, NULL, 'Piedra Blanca', 17);
+CALL spSetMunicipio(1, NULL, 'Castañuelas', 18);
+CALL spSetMunicipio(1, NULL, 'Guayubín', 18);
+CALL spSetMunicipio(1, NULL, 'Las Matas de Santa Cruz', 18);
+CALL spSetMunicipio(1, NULL, 'Monte Cristi', 18);
+CALL spSetMunicipio(1, NULL, 'Pepillo Salcedo', 18);
+CALL spSetMunicipio(1, NULL, 'Villa Vásquez', 18);
+CALL spSetMunicipio(1, NULL, 'Bayaguana', 19);
+CALL spSetMunicipio(1, NULL, 'Monte Plata', 19);
+CALL spSetMunicipio(1, NULL, 'Peralvillo', 19);
+CALL spSetMunicipio(1, NULL, 'Sabana Grande de Boyá', 19);
+CALL spSetMunicipio(1, NULL, 'Yamasá', 19);
+CALL spSetMunicipio(1, NULL, 'Oviedo', 20);
+CALL spSetMunicipio(1, NULL, 'Pedernales', 20);
+CALL spSetMunicipio(1, NULL, 'Baní', 21);
+CALL spSetMunicipio(1, NULL, 'Matanzas', 21);
+CALL spSetMunicipio(1, NULL, 'Nizao', 21);
+CALL spSetMunicipio(1, NULL, 'Altamira', 22);
+CALL spSetMunicipio(1, NULL, 'Guananico', 22);
+CALL spSetMunicipio(1, NULL, 'Imbert', 22);
+CALL spSetMunicipio(1, NULL, 'Los Hidalgos', 22);
+CALL spSetMunicipio(1, NULL, 'Luperón', 22);
+CALL spSetMunicipio(1, NULL, 'Puerto Plata', 22);
+CALL spSetMunicipio(1, NULL, 'Sosúa', 22);
+CALL spSetMunicipio(1, NULL, 'Villa Isabela', 22);
+CALL spSetMunicipio(1, NULL, 'Villa Montellano', 22);
+CALL spSetMunicipio(1, NULL, 'Las Terrenas', 23);
+CALL spSetMunicipio(1, NULL, 'Samaná', 23);
+CALL spSetMunicipio(1, NULL, 'Sánchez', 23);
+CALL spSetMunicipio(1, NULL, 'Bajos de Haina', 24);
+CALL spSetMunicipio(1, NULL, 'Cambita Garabitos', 24);
+CALL spSetMunicipio(1, NULL, 'Los Cacaos', 24);
+CALL spSetMunicipio(1, NULL, 'Sabana Grande de Palenque', 24);
+CALL spSetMunicipio(1, NULL, 'San Cristóbal', 24);
+CALL spSetMunicipio(1, NULL, 'San Gregorio de Nigua', 24);
+CALL spSetMunicipio(1, NULL, 'Villa Altagracia', 24);
+CALL spSetMunicipio(1, NULL, 'Yaguate', 24);
+CALL spSetMunicipio(1, NULL, 'Rancho Arriba', 25);
+CALL spSetMunicipio(1, NULL, 'Sabana Larga', 25);
+CALL spSetMunicipio(1, NULL, 'San José de Ocoa', 25);
+CALL spSetMunicipio(1, NULL, 'Bohechío', 26);
+CALL spSetMunicipio(1, NULL, 'El Cercado', 26);
+CALL spSetMunicipio(1, NULL, 'Juan de Herrera', 26);
+CALL spSetMunicipio(1, NULL, 'Las Matas de Farfán', 26);
+CALL spSetMunicipio(1, NULL, 'San Juan', 26);
+CALL spSetMunicipio(1, NULL, 'Vallejuelo', 26);
+CALL spSetMunicipio(1, NULL, 'Consuelo', 27);
+CALL spSetMunicipio(1, NULL, 'Guayacanes', 27);
+CALL spSetMunicipio(1, NULL, 'Los Llanos', 27);
+CALL spSetMunicipio(1, NULL, 'Quisqueya', 27);
+CALL spSetMunicipio(1, NULL, 'Ramón Santana', 27);
+CALL spSetMunicipio(1, NULL, 'San Pedro de Macorís', 27);
+CALL spSetMunicipio(1, NULL, 'Cevicos', 28);
+CALL spSetMunicipio(1, NULL, 'Cotuí', 28);
+CALL spSetMunicipio(1, NULL, 'Fantino', 28);
+CALL spSetMunicipio(1, NULL, 'Villa la Mata', 28);
+CALL spSetMunicipio(1, NULL, 'Baitoa', 29);
+CALL spSetMunicipio(1, NULL, 'Bisonó', 29);
+CALL spSetMunicipio(1, NULL, 'Jánico', 29);
+CALL spSetMunicipio(1, NULL, 'Licey al Medio', 29);
+CALL spSetMunicipio(1, NULL, 'Puñal', 29);
+CALL spSetMunicipio(1, NULL, 'Sabana Iglesia', 29);
+CALL spSetMunicipio(1, NULL, 'San José de las Matas', 29);
+CALL spSetMunicipio(1, NULL, 'Santiago', 29);
+CALL spSetMunicipio(1, NULL, 'Tamboril', 29);
+CALL spSetMunicipio(1, NULL, 'Villa González', 29);
+CALL spSetMunicipio(1, NULL, 'Monción', 30);
+CALL spSetMunicipio(1, NULL, 'San Ignacio de Sabaneta', 30);
+CALL spSetMunicipio(1, NULL, 'Villa los Almácigos', 30);
+CALL spSetMunicipio(1, NULL, 'Boca Chica', 31);
+CALL spSetMunicipio(1, NULL, 'Los Alcarrizos', 31);
+CALL spSetMunicipio(1, NULL, 'Pedro Brand', 31);
+CALL spSetMunicipio(1, NULL, 'San Antonio de Guerra', 31);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo Este', 31);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo Norte', 31);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo Oeste', 31);
+CALL spSetMunicipio(1, NULL, 'Esperanza', 32);
+CALL spSetMunicipio(1, NULL, 'Laguna Salada', 32);
+CALL spSetMunicipio(1, NULL, 'Mao', 32);
+
+CALL spSetRolUsuario(1, NULL, 'Administrador');
+CALL spSetRolUsuario(1, NULL, 'Encargado de registro');
+CALL spSetRolUsuario(1, NULL, 'Analista de pruebas');
+CALL spSetRolUsuario(1, NULL, 'Evaluador final');
+CALL spSetRolUsuario(1, NULL, 'Solicitante');
+
+CALL spSetTipoMuestra(1, NULL, 'AL', 'Alimentos');
+CALL spSetTipoMuestra(1, NULL, 'AG', 'Agua');
+CALL spSetTipoMuestra(1, NULL, 'BA', 'Bebidas alcohólicas');
+
+CALL spSetTipoPrueba(1, NULL, 'FQ', 'Fisicoquímica');
+CALL spSetTipoPrueba(1, NULL, 'MB', 'Microbiológica');
+CALL spSetTipoPrueba(1, NULL, 'ET', 'De etiquetado');
+
+CALL spSetParametro(1, NULL, 1, 'pH', 'Numérico', 'Índice de acidez', NULL);
+CALL spSetParametro(1, NULL, 1, 'Grados Brix', 'Numérico', 'Concentración de azúcar', '°Brix');
+CALL spSetParametro(1, NULL, 1, 'Grasa', 'Numérico', 'Contenido de grasa', 'g');
+CALL spSetParametro(1, NULL, 1, 'Humedad', 'Numérico', 'Contenido de agua', '%');
+CALL spSetParametro(1, NULL, 1, 'Proteínas', 'Numérico', 'Contenido de proteínas', 'g');
+CALL spSetParametro(1, NULL, 1, 'Grado alcohólico', 'Numérico', 'Contenido de alcohol', '%');
+CALL spSetParametro(1, NULL, 1, 'Tiempo de frescura', 'Numérico', 'Duración óptima', 'días');
+CALL spSetParametro(1, NULL, 2, 'E. coli', 'Numérico', 'Cantidad de E. coli', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Salmonella spp.', 'Numérico', 'Cantidad de Salmonella', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Bacillus cereus', 'Numérico', 'Cantidad de Bacillus cereus', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Levaduras', 'Numérico', 'Cantidad de levaduras', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Número Más Probable de Coliformes', 'Numérico', 'Estimación de coliformes', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Enterococos fecales', 'Numérico', 'Cantidad de enterococos', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Crecimiento observado', 'Texto', 'Observación del crecimiento', NULL);
+CALL spSetParametro(1, NULL, 3, 'Ingredientes declarados', 'Texto', 'Listado de ingredientes', NULL);
+CALL spSetParametro(1, NULL, 3, 'Días hasta caducidad', 'Numérico', 'Tiempo hasta caducidad', 'días');
+CALL spSetParametro(1, NULL, 3, 'Lote de producción', 'Texto', 'Identificador del lote', NULL);
+CALL spSetParametro(1, NULL, 3, 'Información nutricional: calorías', 'Numérico', 'Cantidad de calorías', 'kcal');
+CALL spSetParametro(1, NULL, 3, 'Alérgenos', 'Texto', 'Alérgenos presentes', NULL);
+CALL spSetParametro(1, NULL, 3, 'Fuente de agua', 'Texto', 'Origen del agua', NULL);
+CALL spSetParametro(1, NULL, 3, 'Legibilidad de etiqueta', 'Texto', 'Claridad de la etiqueta', NULL);
+
+CALL spSetParametroDeTipoMuestra(1, 1, 1);
+CALL spSetParametroDeTipoMuestra(1, 2, 1);
+CALL spSetParametroDeTipoMuestra(1, 3, 1);
+CALL spSetParametroDeTipoMuestra(1, 1, 2);
+CALL spSetParametroDeTipoMuestra(1, 3, 2);
+CALL spSetParametroDeTipoMuestra(1, 1, 3);
+CALL spSetParametroDeTipoMuestra(1, 1, 4);
+CALL spSetParametroDeTipoMuestra(1, 2, 4);
+CALL spSetParametroDeTipoMuestra(1, 3, 4);
+CALL spSetParametroDeTipoMuestra(1, 1, 5);
+CALL spSetParametroDeTipoMuestra(1, 3, 5);
+CALL spSetParametroDeTipoMuestra(1, 3, 6);
+CALL spSetParametroDeTipoMuestra(1, 1, 7);
+CALL spSetParametroDeTipoMuestra(1, 1, 8);
+CALL spSetParametroDeTipoMuestra(1, 2, 8);
+CALL spSetParametroDeTipoMuestra(1, 3, 8);
+CALL spSetParametroDeTipoMuestra(1, 1, 9);
+CALL spSetParametroDeTipoMuestra(1, 2, 9);
+CALL spSetParametroDeTipoMuestra(1, 3, 9);
+CALL spSetParametroDeTipoMuestra(1, 1, 10);
+CALL spSetParametroDeTipoMuestra(1, 3, 11);
+CALL spSetParametroDeTipoMuestra(1, 2, 12);
+CALL spSetParametroDeTipoMuestra(1, 2, 13);
+CALL spSetParametroDeTipoMuestra(1, 1, 14);
+CALL spSetParametroDeTipoMuestra(1, 1, 15);
+CALL spSetParametroDeTipoMuestra(1, 2, 15);
+CALL spSetParametroDeTipoMuestra(1, 3, 15);
+CALL spSetParametroDeTipoMuestra(1, 1, 16);
+CALL spSetParametroDeTipoMuestra(1, 3, 16);
+CALL spSetParametroDeTipoMuestra(1, 1, 17);
+CALL spSetParametroDeTipoMuestra(1, 2, 17);
+CALL spSetParametroDeTipoMuestra(1, 3, 17);
+CALL spSetParametroDeTipoMuestra(1, 1, 18);
+CALL spSetParametroDeTipoMuestra(1, 3, 18);
+CALL spSetParametroDeTipoMuestra(1, 1, 19);
+CALL spSetParametroDeTipoMuestra(1, 2, 20);
+CALL spSetParametroDeTipoMuestra(1, 1, 21);
+CALL spSetParametroDeTipoMuestra(1, 2, 21);
+CALL spSetParametroDeTipoMuestra(1, 3, 21);
+
+CALL spSetColeccionNormas(1, NULL, 'CXC', 'Codex Alimentarius');
+CALL spSetColeccionNormas(1, NULL, 'NORDOM', 'Normas Técnicas Dominicanas');
+
+CALL spSetNorma(1, NULL, 1, '600', 'Directrices Generales para la Higiene de los Alimentos', 'Establece prácticas de higiene para la manipulación y almacenamiento de alimentos.', 2024, 'https://www.fao.org/fao-who-codexalimentarius/codex-texts/cxc-600');
+CALL spSetNorma(1, NULL, 1, '234', 'Métodos de Análisis para Determinar Parámetros Fisicoquímicos', 'Define métodos estandarizados para análisis de pH, acidez, humedad y otros.', 2023, 'https://www.fao.org/fao-who-codexalimentarius/codex-texts/cxc-234');
+CALL spSetNorma(1, NULL, 2, '220', 'Requisitos Microbiológicos para Productos Alimenticios', 'Especifica los límites microbiológicos aceptables en alimentos y bebidas.', 2022, 'https://indocal.gob.do/nordom-220');
+CALL spSetNorma(1, NULL, 2, '255', 'Rotulado y Etiquetado de Alimentos Preenvasados', 'Regula la información nutricional, alérgenos y lote en etiquetas.', 2021, 'https://indocal.gob.do/nordom-255');
+CALL spSetNorma(1, NULL, 2, '310', 'Análisis de Contenido Nutricional y Composición de Alimentos', 'Describe los métodos para determinar proteínas, grasas y calorías.', 2024, 'https://indocal.gob.do/nordom-310');
+
+CALL spSetLimitesDeConfianza(1, 1, 1, 4.00, 9.00, NULL); -- 1. pH
+CALL spSetLimitesDeConfianza(1, 1, 2, 6.00, 8.50, NULL);
+CALL spSetLimitesDeConfianza(1, 1, 3, 5.50, 9.00, NULL);
+CALL spSetLimitesDeConfianza(1, 2, 5, 5.00, NULL, NULL); -- 2. Grados Brix
+CALL spSetLimitesDeConfianza(1, 2, 2, 8.00, NULL, NULL);
+CALL spSetLimitesDeConfianza(1, 3, 5, NULL, 15.00, NULL); -- 3. Grasa
+CALL spSetLimitesDeConfianza(1, 3, 2, 0.50, 20.00, NULL);
+CALL spSetLimitesDeConfianza(1, 3, 1, 0.20, 25.00, NULL);
+CALL spSetLimitesDeConfianza(1, 4, 1, 2.00, 15.00, NULL); -- 4. Humedad
+CALL spSetLimitesDeConfianza(1, 4, 2, 3.00, 12.00, NULL);
+CALL spSetLimitesDeConfianza(1, 4, 5, 3.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 5, 5, 2.00, NULL, NULL); -- 5. Proteínas
+CALL spSetLimitesDeConfianza(1, 5, 1, 5.00, 40.00, NULL);
+CALL spSetLimitesDeConfianza(1, 5, 3, 3.00, 30.00, NULL);
+CALL spSetLimitesDeConfianza(1, 6, 1, NULL, 15.00, NULL); -- 6. Grado alcohólico
+CALL spSetLimitesDeConfianza(1, 6, 2, NULL, 50.00, NULL);
+CALL spSetLimitesDeConfianza(1, 6, 3, NULL, 40.00, NULL);
+CALL spSetLimitesDeConfianza(1, 7, 1, 5.00, NULL, NULL); -- 7. Tiempo de frescura
+CALL spSetLimitesDeConfianza(1, 7, 5, 2.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 8, 3, 0.00, 100.00, NULL); -- 8. E. coli
+CALL spSetLimitesDeConfianza(1, 8, 1, 0.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 8, 2, 0.00, 50.00, NULL);
+CALL spSetLimitesDeConfianza(1, 9, 2, 0.00, 0.00, NULL); -- 9. Salmonella spp
+CALL spSetLimitesDeConfianza(1, 9, 3, 0.00, 0.00, NULL);
+CALL spSetLimitesDeConfianza(1, 9, 1, 0.00, 0.00, NULL);
+CALL spSetLimitesDeConfianza(1, 10, 3, 0.00, 1000.00, NULL); -- 10. Bacillus cereus
+CALL spSetLimitesDeConfianza(1, 10, 5, 0.00, 500.00, NULL);
+CALL spSetLimitesDeConfianza(1, 11, 3, 0.00, 1000.00, NULL); -- 11. Levaduras
+CALL spSetLimitesDeConfianza(1, 11, 1, 0.00, 2000.00, NULL);
+CALL spSetLimitesDeConfianza(1, 12, 3, NULL, 3.00, NULL); -- 12. NMP de Coliformes
+CALL spSetLimitesDeConfianza(1, 12, 2, NULL, 5.00, NULL);
+CALL spSetLimitesDeConfianza(1, 12, 1, NULL, 3.00, NULL);
+CALL spSetLimitesDeConfianza(1, 13, 3, 0.00, 100.00, NULL); -- 13. Enterococos fecales
+CALL spSetLimitesDeConfianza(1, 13, 1, 0.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 14, 1, NULL, NULL, 'Ausente'); -- 14. Crecimiento observado
+CALL spSetLimitesDeConfianza(1, 15, 4, NULL, NULL, 'Ingredientes coinciden con etiqueta'); -- 15. Ingredientes declarados
+CALL spSetLimitesDeConfianza(1, 15, 2, NULL, NULL, 'Todos los ingredientes están listados');
+CALL spSetLimitesDeConfianza(1, 16, 5, 30.00, NULL, NULL); -- 16. Días hasta caducidad
+CALL spSetLimitesDeConfianza(1, 16, 1, 10.00, 90.00, NULL);
+CALL spSetLimitesDeConfianza(1, 16, 2, 7.00, 60.00, NULL);
+CALL spSetLimitesDeConfianza(1, 17, 4, NULL, NULL, 'Con identificador visible y legible'); -- 17. Lote de producción
+CALL spSetLimitesDeConfianza(1, 17, 1, NULL, NULL, 'Claramente impreso');
+CALL spSetLimitesDeConfianza(1, 18, 5, 50.00, 800.00, NULL); -- 18. Calorías
+CALL spSetLimitesDeConfianza(1, 18, 1, 20.00, 1000.00, NULL);
+CALL spSetLimitesDeConfianza(1, 18, 2, 10.00, 1200.00, NULL);
+CALL spSetLimitesDeConfianza(1, 19, 4, NULL, NULL, 'Declara si contiene alérgenos'); -- 19. Alérgenos
+CALL spSetLimitesDeConfianza(1, 19, 2, NULL, NULL, 'Menciona alérgenos específicos');
+CALL spSetLimitesDeConfianza(1, 20, 4, NULL, NULL, 'Origen y tipo de fuente indicada'); -- 20. Fuente de agua
+CALL spSetLimitesDeConfianza(1, 20, 1, NULL, NULL, 'Fuente de agua especificada claramente');
+CALL spSetLimitesDeConfianza(1, 21, 4, NULL, NULL, 'Legible a simple vista'); -- 21. Legibilidad de etiqueta
+
+CALL spSetLaboratorio(1, NULL, 'Lab Central', 'central@labsrd.com', '8091111111', 'Av. Independencia #100', 'Centro', 32);
+CALL spSetLaboratorio(1, NULL, 'Lab Caribe', 'caribe@labsrd.com', '8092222222', 'Calle Duarte #50', 'Zona Norte', 154);
+
+CALL spSetEmpresa(1, NULL, '130418429', 'Alimentos RD', 'Alimentos Dominicana S.A.', 'contacto@alird.com', '8093333333', 'Av. Churchill #200', 'Ensanche', 32);
+CALL spSetEmpresa(1, NULL, '430813548', 'Distribuidora Quisqueya', 'Distribuidora Quisqueya SRL', 'ventas@quisqueya.com', '8095555555', 'Carretera Mella Km 8', 'Zona Oeste', 155);
+CALL spSetEmpresa(1, NULL, '133701335', 'Lácteos del Cibao', 'Lácteos del Cibao S.A.', 'info@lacteoscibao.com', '8096666666', 'Calle Restauración #15', 'Zona Norte', 143);
+
+CALL spSetUsuario(1, NULL, '01000000001', 'root', 'root@gmail.com', 'root', NULL, 1, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '01234567890', 'Juan Pérez', 'juanperez@gmail.com', '1234', '8091234567', 1, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '12312312312', 'Test #1', '1@gmail.com', '1234', NULL, 2, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '45645645645', 'Test #2', '2@gmail.com', '1234', NULL, 3, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '78978978978', 'Test #3', '3@gmail.com', '1234', NULL, 4, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '32132132132', 'Test2 #1', '1.2@gmail.com', '1234', NULL, 2, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '65465465465', 'Test2 #2', '2.2@gmail.com', '1234', NULL, 3, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '98798798798', 'Test2 #3', '3.2@gmail.com', '1234', NULL, 4, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '40212345678', 'Cliente 1', 'cliente1@gmail.com', '1234', '8097777777', 5, 1, NULL, NULL, 32);
+CALL spSetUsuario(1, NULL, '40298765432', 'Cliente 2', 'cliente2@gmail.com', '1234', '8098298498', 5, 3, NULL, NULL, 149);
+
+-- Muestras (ejemplos de inserts)
+CALL spSetMuestra(1, NULL, 9, 1, 2, 1, 'Yogurt natural Nestlé', 'Buena', '2025-09-06', 1, 'Adecuado', 'Adecuado', 4.50, 'Blanco', 'Característico', 'Dulce', 'Líquido', 'Suave', 200.00, '2026-03-01', 'Producto refrigerado, lote pequeño', NULL, 3);
+CALL spSetMuestra(1, NULL, 9, 1, 2, 2, 'Agua purificada Dasani', 'Buena', '2025-09-09', 2, 'Adecuado', 'Adecuado', 5.80, 'Transparente', 'Sin olor', 'Sin sabor', 'Líquido', 'Suave', 1500.00, '2026-03-10', 'Botella sellada correctamente', NULL, 6);
+CALL spSetMuestra(1, NULL, 9, 2, 3, 3, 'Vino tinto Concha y Toro Reservado', 'Buena', '2025-09-08', 1, 'Adecuado', 'Adecuado', 20.00, 'Rojo', 'Característico', 'Ácido', 'Líquido', 'Suave', 750.00, '2028-05-01', 'Botella sellada, color intenso', NULL, 3);
+CALL spSetMuestra(1, NULL, 10, 3, 1, 1, 'Harina de trigo Robin Hood', 'Buena', '2025-09-13', 1, 'Adecuado', 'Desconocido', NULL, 'Blanco', 'Sin olor', 'Sin sabor', 'Polvo', 'Granulosa', 5000.00, '2026-08-30', 'Saco sellado correctamente', NULL, 6);
+CALL spSetMuestra(1, NULL, 10, 3, 1, 2, 'Agua de pozo artesanal Sierra Azul', 'Regular', '2025-09-15', 2, 'Inadecuado', 'Desconocido', 22.00, 'Transparente', 'Característico', 'Sin sabor', 'Líquido', 'Suave', 500.00, NULL, 'Envase sin etiquetar, leve olor mineral', NULL, 3);
+CALL spSetMuestra(1, NULL, 10, 1, 3, 1, 'Aceite vegetal Crisol', 'Mala', '2025-09-10', 2, 'Adecuado', 'Inadecuado', 23.50, 'Amarillo', 'Desagradable', 'Amargo', 'Líquido', 'Viscosa', 900.00, '2026-01-15', 'Color y olor alterados', NULL, 6);
+CALL spSetMuestra(1, NULL, 10, 1, 2, 3, 'Cerveza Presidente', 'Regular', '2025-09-12', 1, 'Adecuado', 'Adecuado', 10.00, 'Amarillo', 'Característico', 'Amargo', 'Líquido', 'Viscosa', 330.00, '2026-02-10', 'Espuma ligera, botella intacta', NULL, 3);
+CALL spSetMuestra(1, NULL, 9, 2, 1, 1, 'Chocolate en barra Hershey’s', 'Deteriorada', '2025-09-11', 1, 'Inadecuado', 'Inadecuado', 28.00, 'Marrón', 'Característico', 'Dulce', 'Sólido', 'Granulosa', 120.00, '2026-05-20', 'Envase roto, con exposición al aire', NULL, 6);
+CALL spSetMuestra(1, NULL, 9, 3, 1, 3, 'Ron Brugal Extra Viejo', 'Buena', '2025-09-14', 2, 'Adecuado', 'Adecuado', 25.00, 'Marrón', 'Característico', 'Dulce', 'Líquido', 'Suave', 700.00, '2030-09-16', 'Botella sellada, aroma fuerte', NULL, 3);
+CALL spSetMuestra(1, NULL, 9, 2, 3, 1, 'Jugo de Naranja Tropicana', 'Regular', '2025-09-16', 1, 'Inadecuado', 'Adecuado', 8.20, 'Amarillo', 'Característico', 'Ácido', 'Líquido', 'Viscosa', 1000.00, '2025-12-15', 'Envase con abolladuras', NULL, 6);
+
+-- Ejemplo de llamadas que llevan hasta la certificación de la muestra ID 1 (tipo muestra ID 1)
+CALL spSetAsignacion(2, 1, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetPrueba(1, NULL, 1, 1, NULL, NULL);
+CALL spSetResultado(1, 1, 1, 7.20, NULL, 'Valor dentro del rango esperado de pH.');
+CALL spSetResultado(1, 1, 2, 8.80, NULL, NULL);
+CALL spSetResultado(1, 1, 3, 8.50, NULL, NULL);
+CALL spSetResultado(1, 1, 4, 7.00, NULL, 'Lectura estable de grados Brix.');
+CALL spSetResultado(1, 1, 5, 6.20, NULL, NULL);
+CALL spSetResultado(1, 1, 7, 9.50, NULL, 'Valor cercano al límite superior de grasa.');
+CALL spSetPrueba(1, NULL, 1, 2, NULL, NULL);
+CALL spSetResultado(1, 2, 8, 9.00, NULL, NULL);
+CALL spSetResultado(1, 2, 9, 8.00, NULL, NULL);
+CALL spSetResultado(1, 2, 10, 25.00, NULL, 'Humedad controlada en niveles óptimos.');
+CALL spSetResultado(1, 2, 14, NULL, 'SÍ - Ausente', NULL);
+CALL spSetPrueba(1, NULL, 1, 3, NULL, NULL);
+CALL spSetResultado(1, 3, 15, NULL, 'NO - Todos los ingredientes están listados; SÍ - Ingredientes coinciden con etiqueta', 'Ciertos ingredientes no están presentes.');
+CALL spSetResultado(1, 3, 17, NULL, 'SÍ - Claramente impreso; SÍ - Con identificador visible y legible', 'Etiqueta verificada visualmente.');
+CALL spSetResultado(1, 3, 18, 750.00, NULL, NULL);
+CALL spSetResultado(1, 3, 19, NULL, 'SÍ - Menciona alérgenos específicos; SÍ - Declara si contiene alérgenos', NULL);
+CALL spSetAsignacion(2, 2, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetPrueba(2, 1, NULL, NULL, NULL, TRUE);
+CALL spSetPrueba(2, 2, NULL, NULL, NULL, TRUE);
+CALL spSetPrueba(2, 3, NULL, NULL, NULL, TRUE);
+CALL spSetMuestra(2, 1, 9, 1, 2, NULL, 'Yogurt natural Nestlé', 'Buena', '2025-09-06', 1, 'Adecuado', 'Adecuado', 4.50, 'Blanco', 'Característico', 'Dulce', 'Líquido', 'Suave', 200.00, '2026-03-01', 'Producto refrigerado, lote pequeño', TRUE, 3);
+CALL spSetAsignacion(2, 3, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+
+/* -- Algunos selects útiles
+SELECT * FROM Usuario;
+SELECT * FROM Muestra;
+SELECT * FROM Asignacion;
+SELECT * FROM Prueba;
+SELECT * FROM Parametro;
+SELECT * FROM LimitesDeConfianza;
+SELECT * FROM Resultado;
+
+SELECT *
+FROM ParametroDeTipoMuestra patm
+-- INNER JOIN Parametro pa ON pa.id_parametro = patm.id_parametro
+WHERE patm.id_tipo_muestra = 1;
+
+SELECT
+	-- patm.*,
+    pa.id_parametro,
+    -- pa.codigo_parametro,
+	-- pa.id_tipo_prueba,
+	pa.nombre_parametro,
+	pa.tipo_parametro,
+    -- pa.descripcion_parametro,
+    pa.unidad_medida_parametro,
+    -- pa.usar_parametro_en_pruebas,
+	-- lc.id_norma,
+	lc.valor_min_limite_parametro,
+	lc.valor_max_limite_parametro,
+	lc.valor_texto_limite_parametro-- ,
+	-- lc.usar_limites_en_pruebas,
+FROM LimitesDeConfianza lc
+INNER JOIN Parametro pa ON pa.id_parametro = lc.id_parametro
+INNER JOIN ParametroDeTipoMuestra patm ON patm.id_parametro = pa.id_parametro
+WHERE patm.id_tipo_muestra = 1
+	AND pa.id_tipo_prueba = 3
+	AND pa.usar_parametro_en_pruebas = TRUE
+    AND lc.usar_limites_en_pruebas = TRUE
+    -- and pa.id_parametro = 19
+ORDER BY pa.id_parametro, lc.id_norma;
+*/
+
+/*-- ignorar estos (testing)
+CALL spSetAsignacion(2, 1, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 2, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 16, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 17, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 18, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetUsuario(3, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+CALL spSetAsignacion(2, 21, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetUsuario(3, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+CALL spSetAsignacion(2, 22, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetUsuario(3, 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+CALL spSetAsignacion(2, 24, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetUsuario(4, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+SELECT * FROM Asignacion WHERE id_muestra = 1;
+SELECT * FROM Muestra;
+
+CALL spSetUsuario(3, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+CALL spSetAsignacion(3, 16, NULL, NULL, NULL, NULL, NULL, @v_dummy);
+
+CALL spSetAsignacion(2, 4, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 5, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+
+CALL spSetMuestra(3, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL); -- descartar funciona bien
+
+CALL spSetAsignacion(2, 17, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 3, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 18, NULL, NULL, 'Devuelta', 'No está bien', NULL, @v_dummy);
+CALL spSetAsignacion(2, 20, NULL, NULL, 'Finalizada', NULL, 'Revise', @v_dummy);
+-- CALL spSetAsignacion(2, 21, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+-- CALL spSetAsignacion(2, 19, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy); falta por validar muestra*/

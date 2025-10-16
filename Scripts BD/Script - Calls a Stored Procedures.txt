@@ -1,0 +1,46 @@
+-- PLANTILLA PARA LOS GET (poner en NULL si no se quiere usar para filtro, llenar valor si se quere filtrar por eso)
+CALL spGetProvincia(p_id_provincia, p_nombre_provincia, p_estado_activo_provincia);
+CALL spGetMunicipio(p_id_municipio, p_nombre_municipio, p_id_provincia, p_estado_activo_municipio);
+CALL spGetRolUsuario(p_id_rol_usuario, p_nombre_rol_usuario, p_estado_activo_rol_usuario);
+CALL spGetLaboratorio(p_id_lab, p_nombre_lab, p_correo_lab, p_tel_contacto_lab, p_direccion_lab, p_sector_lab, p_id_municipio_lab, p_estado_activo_lab, p_fecha_creacion_lab, p_fecha_actualizacion_lab);
+CALL spGetEmpresa(p_id_emp, p_rnc_emp, p_nombre_comercial_emp, p_razon_social_emp, p_correo_emp, p_tel_contacto_emp, p_direccion_emp, p_sector_emp, p_id_municipio_emp, p_estado_activo_emp, p_fecha_creacion_emp, p_fecha_actualizacion_emp);
+CALL spGetTipoMuestra(p_id_tipo_muestra, p_abreviatura_tipo_muestra, p_nombre_tipo_muestra, p_estado_activo_tipo_muestra);
+CALL spGetUsuario(p_id_usuario, p_cedula_usuario, p_nombre_usuario, p_correo_usuario, p_password_usuario, p_tel_contacto_usuario, p_id_rol_usuario, p_id_emp_usuario, p_direccion_usuario, p_sector_usuario, p_id_municipio_usuario, p_estado_activo_usuario, p_fecha_creacion_usuario, p_fecha_actualizacion_usuario);
+CALL spGetMuestra(p_id_muestra, p_codigo_muestra, p_id_solicitante, p_id_emp_fabricante_muestra, p_id_emp_distribuidor_muestra, p_id_tipo_muestra, p_nombre_producto_muestra, p_condicion_muestra, p_fecha_recepcion_muestra, p_id_lab_muestra, p_condicion_transp_muestra, p_condicion_almac_muestra, p_temperatura_muestra, p_color_muestra, p_olor_muestra, p_sabor_muestra, p_aspecto_muestra, p_textura_muestra, p_peso_neto_muestra, p_fecha_vencimiento_muestra, p_observaciones_muestra, p_muestra_en_proceso, p_muestra_apta_para_consumo, p_muestra_validada, p_fecha_creacion_muestra, p_fecha_actualizacion_muestra);
+CALL spGetAsignacion(p_id_asignacion, p_id_usuario, p_id_muestra, p_numero_fase_asignacion, p_estado_asignacion, p_fecha_inicio_asignacion, p_fecha_limite_asignacion, p_fecha_fin_asignacion, p_motivos_devolucion, p_comentarios_a_siguiente_fase, p_fecha_creacion_asignacion, p_fecha_actualizacion_asignacion);
+CALL spGetTipoPrueba(p_id_tipo_prueba, p_abreviatura_tipo_prueba, p_nombre_tipo_prueba, p_estado_activo_tipo_prueba);
+CALL spGetPrueba(p_id_prueba, p_codigo_prueba, p_id_muestra, p_id_tipo_prueba, p_notas_prueba, p_prueba_aprobada, p_prueba_validada, p_estado_activo_prueba, p_fecha_creacion_prueba, p_fecha_actualizacion_prueba);
+CALL spGetParametro(p_id_parametro, p_codigo_parametro, p_id_tipo_prueba, p_nombre_parametro, p_tipo_parametro, p_descripcion_parametro, p_unidad_medida_parametro, p_usar_parametro_en_pruebas, p_fecha_creacion_parametro, p_fecha_actualizacion_parametro);
+CALL spGetResultado(p_id_prueba, p_id_parametro, p_resultado_numerico, p_resultado_texto, p_observaciones_resultado, p_resultado_dentro_de_limites, p_fecha_creacion_resultado, p_fecha_actualizacion_resultado);
+CALL spGetColeccionNormas(p_id_coleccion_normas, p_sigla_coleccion_normas, p_nombre_coleccion_normas, p_estado_activo_coleccion, p_fecha_creacion_coleccion, p_fecha_actualizacion_coleccion);
+CALL spGetNorma(p_id_norma, p_codigo_norma, p_id_coleccion_normas, p_numero_norma, p_titulo_norma, p_descripcion_norma, p_anio_norma, p_referencia_acceso_norma, p_estado_activo_norma, p_fecha_creacion_norma, p_fecha_actualizacion_norma);
+CALL spGetLimitesDeConfianza(p_id_parametro, p_id_norma, p_valor_min_limite_parametro, p_valor_max_limite_parametro, p_valor_texto_limite_parametro, p_usar_limites_en_pruebas, p_fecha_creacion_limites, p_fecha_actualizacion_limites);
+CALL spGetParametroDeTipoMuestra(p_id_tipo_muestra, p_id_parametro);
+CALL spGetLogAcciones(p_id_accion, p_id_asignacion, p_descripcion_accion, p_fecha_accion);
+CALL spGetLogEventosSistema(p_id_evento, p_id_usuario, p_descripcion_evento, p_ip_origen_evento, p_fecha_evento);
+CALL spGetNotificacion(p_id_notificacion, p_id_asignacion, p_tipo_notificacion, p_medio_notificacion, p_estado_envio_notificacion, p_fecha_creacion_notificacion, p_fecha_actualizacion_notificacion);
+CALL spGetDocumento(p_id_documento, p_id_muestra, p_tipo_documento, p_ruta_archivo_documento, p_numero_version_documento, p_id_usuario_emisor, p_fecha_creacion_documento);
+CALL spGetEnumValues(p_entidad, p_atributo);
+
+-- PLANTILLA PARA LOS SET (el primer parámetro siempre es la operación: int 1-INSERTAR, 2-ACTUALIZAR, 3-DESACTIVAR, 4-REACTIVAR)
+CALL spSetProvincia(p_operacion, p_id_provincia, p_nombre_provincia);
+CALL spSetMunicipio(p_operacion, p_id_municipio, p_nombre_municipio, p_id_provincia);
+CALL spSetRolUsuario(p_operacion, p_id_rol_usuario, p_nombre_rol_usuario);
+CALL spSetLaboratorio(p_operacion, p_id_lab, p_nombre_lab, p_correo_lab, p_tel_contacto_lab, p_direccion_lab, p_sector_lab, p_id_municipio_lab);
+CALL spSetEmpresa(p_operacion, p_id_emp, p_rnc_emp, p_nombre_comercial_emp, p_razon_social_emp, p_correo_emp, p_tel_contacto_emp, p_direccion_emp, p_sector_emp, p_id_municipio_emp);
+CALL spSetTipoMuestra(p_operacion, p_id_tipo_muestra, p_abreviatura_tipo_muestra, p_nombre_tipo_muestra);
+CALL spSetUsuario(p_operacion, p_id_usuario, p_cedula_usuario, p_nombre_usuario, p_correo_usuario, p_password_usuario, p_tel_contacto_usuario, p_id_rol_usuario, p_id_emp_usuario, p_direccion_usuario, p_sector_usuario, p_id_municipio_usuario);
+CALL spSetMuestra(p_operacion, p_id_muestra, p_id_solicitante, p_id_emp_fabricante_muestra, p_id_emp_distribuidor_muestra, p_id_tipo_muestra, p_nombre_producto_muestra, p_condicion_muestra, p_fecha_recepcion_muestra, p_id_lab_muestra, p_condicion_transp_muestra, p_condicion_almac_muestra, p_temperatura_muestra, p_color_muestra, p_olor_muestra, p_sabor_muestra, p_aspecto_muestra, p_textura_muestra, p_peso_neto_muestra, p_fecha_vencimiento_muestra, p_observaciones_muestra, p_muestra_validada, p_id_usuario_registro);
+CALL spSetAsignacion(p_operacion, p_id_asignacion, p_id_usuario, p_id_muestra, p_estado_asignacion, p_motivos_devolucion, p_comentarios_a_siguiente_fase, @p_out_id_asignacion);
+CALL spSetTipoPrueba(p_operacion, p_id_tipo_prueba, p_abreviatura_tipo_prueba, p_nombre_tipo_prueba);
+CALL spSetPrueba(p_operacion, p_id_prueba, p_id_muestra, p_id_tipo_prueba, p_notas_prueba, p_prueba_validada);
+CALL spSetParametro(p_operacion, p_id_parametro, p_id_tipo_prueba, p_nombre_parametro, p_tipo_parametro, p_descripcion_parametro, p_unidad_medida_parametro);
+CALL spSetResultado(p_operacion, p_id_prueba, p_id_parametro, p_resultado_numerico, p_resultado_texto, p_observaciones_resultado);
+CALL spSetColeccionNormas(p_operacion, p_id_coleccion_normas, p_sigla_coleccion_normas, p_nombre_coleccion_normas);
+CALL spSetNorma(p_operacion, p_id_norma, p_id_coleccion_normas, p_numero_norma, p_titulo_norma, p_descripcion_norma, p_anio_norma, p_referencia_acceso_norma);
+CALL spSetLimitesDeConfianza(p_operacion, p_id_parametro, p_id_norma, p_valor_min_limite_parametro, p_valor_max_limite_parametro, p_valor_texto_limite_parametro);
+CALL spSetParametroDeTipoMuestra(p_operacion, p_id_tipo_muestra, p_id_parametro);
+CALL spSetLogAcciones(p_operacion, p_id_asignacion, p_descripcion_accion);
+CALL spSetLogEventosSistema(p_operacion, p_id_usuario, p_descripcion_evento, p_ip_origen_evento);
+CALL spSetNotificacion(p_operacion, p_id_notificacion, p_id_asignacion, p_tipo_notificacion, p_medio_notificacion, p_estado_envio_notificacion);
+CALL spSetDocumento(p_operacion, p_id_documento, p_id_muestra, p_tipo_documento, p_ruta_archivo_documento, p_id_usuario_emisor);

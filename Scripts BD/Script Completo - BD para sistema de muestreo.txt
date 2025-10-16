@@ -1,0 +1,3228 @@
+DROP DATABASE IF EXISTS webreto;
+CREATE DATABASE IF NOT EXISTS webreto;
+USE webreto;
+
+-- €NTIDADE$
+CREATE TABLE Provincia (
+    id_provincia INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_provincia VARCHAR(255) NOT NULL UNIQUE,
+    estado_activo_provincia BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE Municipio (
+    id_municipio INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_municipio VARCHAR(255) NOT NULL,
+	id_provincia INT NOT NULL,
+    estado_activo_municipio BOOLEAN NOT NULL DEFAULT TRUE,
+	UNIQUE (nombre_municipio, id_provincia),
+    FOREIGN KEY (id_provincia) REFERENCES Provincia(id_provincia)
+);
+
+CREATE TABLE RolUsuario (
+    id_rol_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol_usuario VARCHAR(255) NOT NULL UNIQUE,
+    estado_activo_rol_usuario BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE Laboratorio (
+    id_lab INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_lab VARCHAR(255) NOT NULL,
+    correo_lab VARCHAR(50) NOT NULL,
+    tel_contacto_lab VARCHAR(15),
+    direccion_lab VARCHAR(100) NOT NULL,
+    sector_lab VARCHAR(50) NOT NULL,
+    id_municipio_lab INT NOT NULL,
+    estado_activo_lab BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_creacion_lab TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_lab TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_municipio_lab) REFERENCES Municipio(id_municipio)
+);
+
+CREATE TABLE Empresa (
+    id_emp INT AUTO_INCREMENT PRIMARY KEY,
+    rnc_emp CHAR(9) NOT NULL UNIQUE,
+    nombre_comercial_emp VARCHAR(255) NOT NULL,
+    razon_social_emp VARCHAR(255) NOT NULL,
+    correo_emp VARCHAR(50) NOT NULL,
+    tel_contacto_emp VARCHAR(15),
+    direccion_emp VARCHAR(100) NOT NULL,
+    sector_emp VARCHAR(50) NOT NULL,
+    id_municipio_emp INT NOT NULL,
+    estado_activo_emp BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_creacion_emp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_emp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_municipio_emp) REFERENCES Municipio(id_municipio)
+);
+
+CREATE TABLE TipoMuestra (
+    id_tipo_muestra INT AUTO_INCREMENT PRIMARY KEY,
+    abreviatura_tipo_muestra CHAR(2) NOT NULL UNIQUE,
+    nombre_tipo_muestra VARCHAR(255) NOT NULL UNIQUE,
+    estado_activo_tipo_muestra BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE Usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    cedula_usuario CHAR(11) NOT NULL UNIQUE,
+    nombre_usuario VARCHAR(255) NOT NULL,
+    correo_usuario VARCHAR(50) NOT NULL UNIQUE,
+    password_usuario VARCHAR(255) NOT NULL,
+    tel_contacto_usuario VARCHAR(15),
+    id_rol_usuario INT NOT NULL,
+	id_emp_usuario INT,
+    direccion_usuario VARCHAR(255),
+    sector_usuario VARCHAR(50),
+    id_municipio_usuario INT,
+    estado_activo_usuario BOOLEAN NOT NULL DEFAULT TRUE,
+	fecha_creacion_usuario TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_usuario TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_rol_usuario) REFERENCES RolUsuario(id_rol_usuario),
+	FOREIGN KEY (id_emp_usuario) REFERENCES Empresa(id_emp),
+    FOREIGN KEY (id_municipio_usuario) REFERENCES Municipio(id_municipio)
+);
+
+CREATE TABLE Muestra (
+    id_muestra INT AUTO_INCREMENT PRIMARY KEY,
+	codigo_muestra CHAR(15) NOT NULL UNIQUE, -- por ej. M-AL-202509-001
+    id_solicitante_muestra INT NOT NULL,
+    id_emp_fabricante_muestra INT NOT NULL,
+    id_emp_distribuidor_muestra INT NOT NULL,
+    id_tipo_muestra INT NOT NULL,
+	nombre_producto_muestra VARCHAR(255) NOT NULL,
+    condicion_muestra ENUM('Buena','Regular','Mala','Deteriorada') NOT NULL,
+    fecha_recepcion_muestra DATE NOT NULL,
+    id_lab_muestra INT NOT NULL,
+	condicion_transp_muestra ENUM('Adecuado','Inadecuado','Desconocido') NOT NULL,
+	condicion_almac_muestra ENUM('Adecuado','Inadecuado','Desconocido') NOT NULL,
+    temperatura_muestra DECIMAL(10,2),
+	color_muestra ENUM('Transparente','Blanco','Amarillo','Rojo','Verde','Marrón','Negro'),
+	olor_muestra ENUM('Sin olor','Característico','Desagradable'),
+	sabor_muestra ENUM('Sin sabor','Amargo','Dulce','Ácido','Salado'),
+	aspecto_muestra ENUM('Líquido','Sólido','Semisólido','Polvo','Granulado'),
+	textura_muestra ENUM('Suave','Áspera','Granulosa','Viscosa','Otra'),
+    peso_neto_muestra DECIMAL(10,2),
+    fecha_vencimiento_muestra DATE,
+    observaciones_muestra TEXT,
+    estado_muestra ENUM('Recibida', 'En análisis', 'Evaluada', 'Certificada', 'Descartada') NOT NULL DEFAULT 'Recibida',
+    muestra_en_proceso BOOLEAN NOT NULL DEFAULT TRUE,
+    muestra_apta_para_consumo BOOLEAN,
+    muestra_validada BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion_muestra TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_muestra TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_solicitante_muestra) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_emp_fabricante_muestra) REFERENCES Empresa(id_emp),
+    FOREIGN KEY (id_emp_distribuidor_muestra) REFERENCES Empresa(id_emp),
+    FOREIGN KEY (id_tipo_muestra) REFERENCES TipoMuestra(id_tipo_muestra),
+    FOREIGN KEY (id_lab_muestra) REFERENCES Laboratorio(id_lab)
+);
+
+CREATE TABLE Asignacion (
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_muestra INT NOT NULL,
+	numero_fase_asignacion INT NOT NULL,
+    estado_asignacion ENUM('Pendiente', 'En proceso', 'Finalizada', 'Finalizada y última', 'Devuelta', 'Cancelada') NOT NULL DEFAULT 'Pendiente',
+    fecha_inicio_asignacion DATETIME,
+    fecha_limite_asignacion DATETIME,
+    fecha_fin_asignacion DATETIME,
+	motivos_devolucion TEXT,
+	comentarios_a_siguiente_fase TEXT,
+    fecha_creacion_asignacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_asignacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_muestra) REFERENCES Muestra(id_muestra)
+);
+
+CREATE TABLE TipoPrueba (
+    id_tipo_prueba INT AUTO_INCREMENT PRIMARY KEY,
+    abreviatura_tipo_prueba CHAR(2) NOT NULL UNIQUE,
+    nombre_tipo_prueba VARCHAR(255) NOT NULL UNIQUE,
+    estado_activo_tipo_prueba BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE Prueba (
+    id_prueba INT AUTO_INCREMENT PRIMARY KEY,
+    codigo_prueba CHAR(20) NOT NULL UNIQUE,  -- por ej. M-AL-202509-001-FQ01
+    id_muestra INT NOT NULL,
+    id_tipo_prueba INT NOT NULL,
+    notas_prueba TEXT,
+    prueba_aprobada BOOLEAN,
+    prueba_validada BOOLEAN NOT NULL DEFAULT FALSE,
+	estado_activo_prueba BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_creacion_prueba TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_prueba TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_muestra) REFERENCES Muestra(id_muestra),
+    FOREIGN KEY (id_tipo_prueba) REFERENCES TipoPrueba(id_tipo_prueba)
+);
+
+CREATE TABLE Parametro (
+    id_parametro INT AUTO_INCREMENT PRIMARY KEY,
+	codigo_parametro CHAR(7) NOT NULL UNIQUE,  -- por ej. P-FQ-04
+    id_tipo_prueba INT NOT NULL,
+    nombre_parametro VARCHAR(255) NOT NULL,
+	tipo_parametro ENUM('Numérico','Texto') NOT NULL,
+	descripcion_parametro TEXT,
+    unidad_medida_parametro VARCHAR(20),
+    usar_parametro_en_pruebas BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_creacion_parametro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_parametro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_tipo_prueba) REFERENCES TipoPrueba(id_tipo_prueba)
+);
+
+CREATE TABLE Resultado (
+    id_prueba INT,
+    id_parametro INT,
+    resultado_numerico DECIMAL(10,2),
+    resultado_texto VARCHAR(255), -- por ej. SÍ - Ingredientes coinciden con etiqueta; NO - Todos los ingredientes están listados
+    observaciones_resultado TEXT,
+    resultado_dentro_de_limites BOOLEAN NOT NULL,
+    fecha_creacion_resultado TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_resultado TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_prueba, id_parametro),
+    FOREIGN KEY (id_prueba) REFERENCES Prueba(id_prueba),
+    FOREIGN KEY (id_parametro) REFERENCES Parametro(id_parametro)
+);
+
+CREATE TABLE ColeccionNormas (
+    id_coleccion_normas INT AUTO_INCREMENT PRIMARY KEY,
+	sigla_coleccion_normas VARCHAR(10) NOT NULL UNIQUE,  -- por ej. CXC o NORDOM
+    nombre_coleccion_normas VARCHAR(255) NOT NULL UNIQUE,
+    estado_activo_coleccion BOOLEAN NOT NULL DEFAULT TRUE,
+	fecha_creacion_coleccion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_coleccion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Norma (
+    id_norma INT AUTO_INCREMENT PRIMARY KEY,
+	codigo_norma VARCHAR(60) NOT NULL UNIQUE,  -- por ej. N-CXC-600-2024
+    id_coleccion_normas INT NOT NULL,
+    numero_norma VARCHAR(50) NOT NULL,
+    titulo_norma VARCHAR(255) NOT NULL,
+    descripcion_norma TEXT,
+    anio_norma YEAR NOT NULL,
+    referencia_acceso_norma TEXT NOT NULL,
+    estado_activo_norma BOOLEAN NOT NULL DEFAULT TRUE,
+	fecha_creacion_norma TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_norma TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_coleccion_normas) REFERENCES ColeccionNormas(id_coleccion_normas)
+);
+
+CREATE TABLE LimitesDeConfianza (
+    id_parametro INT,
+    id_norma INT,
+    valor_min_limite_parametro DECIMAL(10,2),
+    valor_max_limite_parametro DECIMAL(10,2),
+    valor_texto_limite_parametro VARCHAR(255),
+    usar_limites_en_pruebas BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_creacion_limites TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_limites TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_parametro, id_norma),
+    FOREIGN KEY (id_parametro) REFERENCES Parametro(id_parametro),
+    FOREIGN KEY (id_norma) REFERENCES Norma(id_norma)
+);
+
+CREATE TABLE ParametroDeTipoMuestra (
+    id_tipo_muestra INT,
+    id_parametro INT,
+    PRIMARY KEY (id_tipo_muestra, id_parametro),
+    FOREIGN KEY (id_tipo_muestra) REFERENCES TipoMuestra(id_tipo_muestra),
+    FOREIGN KEY (id_parametro) REFERENCES Parametro(id_parametro)
+);
+
+CREATE TABLE LogAcciones (
+    id_accion INT AUTO_INCREMENT PRIMARY KEY,
+    id_asignacion INT NOT NULL,
+    descripcion_accion TEXT NOT NULL,
+    fecha_accion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_asignacion) REFERENCES Asignacion(id_asignacion)
+);
+
+CREATE TABLE LogEventosSistema (
+    id_evento INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    descripcion_evento TEXT NOT NULL,
+    ip_origen_evento VARCHAR(50) NOT NULL,
+    fecha_evento TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
+);
+
+CREATE TABLE Notificacion (
+    id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_asignacion INT NOT NULL,
+    tipo_notificacion ENUM('General','De asignación','De plazo','De prueba','Otro') NOT NULL,
+    medio_notificacion ENUM('Email','SMS','Push','Otro') NOT NULL,
+    estado_envio_notificacion ENUM('Pendiente','Enviada','Fallida') NOT NULL DEFAULT 'Pendiente',
+    fecha_creacion_notificacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion_notificacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_asignacion) REFERENCES Asignacion(id_asignacion)
+);
+
+CREATE TABLE Documento (
+    id_documento INT AUTO_INCREMENT PRIMARY KEY,
+    id_muestra INT NOT NULL,
+    tipo_documento ENUM('Certificado','Informe','Otro') NOT NULL,
+    ruta_archivo_documento VARCHAR(255) NOT NULL,
+    numero_version_documento INT NOT NULL,
+    id_usuario_emisor INT NOT NULL,
+	fecha_creacion_documento TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_muestra) REFERENCES Muestra(id_muestra),
+    FOREIGN KEY (id_usuario_emisor) REFERENCES Usuario(id_usuario)
+);
+
+-- $TOR€D PROC€DURE$
+DELIMITER $$
+
+CREATE PROCEDURE spGetProvincia (
+    IN p_id_provincia INT,
+    IN p_nombre_provincia VARCHAR(255),
+    IN p_estado_activo_provincia BOOLEAN
+)
+BEGIN
+    SELECT
+        id_provincia,
+        nombre_provincia,
+        estado_activo_provincia
+    FROM Provincia
+    WHERE
+        (p_id_provincia IS NULL OR id_provincia = p_id_provincia)
+        AND (p_nombre_provincia IS NULL OR nombre_provincia = p_nombre_provincia)
+        AND (p_estado_activo_provincia IS NULL OR estado_activo_provincia = p_estado_activo_provincia)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetMunicipio (
+    IN p_id_municipio INT,
+    IN p_nombre_municipio VARCHAR(255),
+    IN p_id_provincia INT,
+    IN p_estado_activo_municipio BOOLEAN
+)
+BEGIN
+    SELECT
+        id_municipio,
+        nombre_municipio,
+        id_provincia,
+        estado_activo_municipio
+    FROM Municipio
+    WHERE
+        (p_id_municipio IS NULL OR id_municipio = p_id_municipio)
+        AND (p_nombre_municipio IS NULL OR nombre_municipio = p_nombre_municipio)
+        AND (p_id_provincia IS NULL OR id_provincia = p_id_provincia)
+        AND (p_estado_activo_municipio IS NULL OR estado_activo_municipio = p_estado_activo_municipio)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetRolUsuario (
+    IN p_id_rol_usuario INT,
+    IN p_nombre_rol_usuario VARCHAR(255),
+    IN p_estado_activo_rol_usuario BOOLEAN
+)
+BEGIN
+    SELECT
+        id_rol_usuario,
+        nombre_rol_usuario,
+        estado_activo_rol_usuario
+    FROM RolUsuario
+    WHERE
+        (p_id_rol_usuario IS NULL OR id_rol_usuario = p_id_rol_usuario)
+        AND (p_nombre_rol_usuario IS NULL OR nombre_rol_usuario = p_nombre_rol_usuario)
+        AND (p_estado_activo_rol_usuario IS NULL OR estado_activo_rol_usuario = p_estado_activo_rol_usuario)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetLaboratorio (
+    IN p_id_lab INT,
+    IN p_nombre_lab VARCHAR(255),
+    IN p_correo_lab VARCHAR(50),
+    IN p_tel_contacto_lab VARCHAR(15),
+    IN p_direccion_lab VARCHAR(100),
+    IN p_sector_lab VARCHAR(50),
+    IN p_id_municipio_lab INT,
+    IN p_estado_activo_lab BOOLEAN,
+    IN p_fecha_creacion_lab TIMESTAMP,
+    IN p_fecha_actualizacion_lab TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_lab,
+        nombre_lab,
+        correo_lab,
+        tel_contacto_lab,
+        direccion_lab,
+        sector_lab,
+        id_municipio_lab,
+        estado_activo_lab,
+        fecha_creacion_lab,
+        fecha_actualizacion_lab
+    FROM Laboratorio
+    WHERE
+        (p_id_lab IS NULL OR id_lab = p_id_lab)
+        AND (p_nombre_lab IS NULL OR nombre_lab = p_nombre_lab)
+        AND (p_correo_lab IS NULL OR correo_lab = p_correo_lab)
+        AND (
+            p_tel_contacto_lab IS NULL
+            OR (p_tel_contacto_lab != '__NULL__' AND tel_contacto_lab = p_tel_contacto_lab)
+            OR (p_tel_contacto_lab = '__NULL__' AND tel_contacto_lab IS NULL)
+        )
+        AND (p_direccion_lab IS NULL OR direccion_lab = p_direccion_lab)
+        AND (p_sector_lab IS NULL OR sector_lab = p_sector_lab)
+        AND (p_id_municipio_lab IS NULL OR id_municipio_lab = p_id_municipio_lab)
+        AND (p_estado_activo_lab IS NULL OR estado_activo_lab = p_estado_activo_lab)
+        AND (p_fecha_creacion_lab IS NULL OR fecha_creacion_lab = p_fecha_creacion_lab)
+        AND (p_fecha_actualizacion_lab IS NULL OR fecha_actualizacion_lab = p_fecha_actualizacion_lab)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetEmpresa (
+    IN p_id_emp INT,
+    IN p_rnc_emp CHAR(9),
+    IN p_nombre_comercial_emp VARCHAR(255),
+    IN p_razon_social_emp VARCHAR(255),
+    IN p_correo_emp VARCHAR(50),
+    IN p_tel_contacto_emp VARCHAR(15),
+    IN p_direccion_emp VARCHAR(100),
+    IN p_sector_emp VARCHAR(50),
+    IN p_id_municipio_emp INT,
+    IN p_estado_activo_emp BOOLEAN,
+    IN p_fecha_creacion_emp TIMESTAMP,
+    IN p_fecha_actualizacion_emp TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_emp,
+        rnc_emp,
+        nombre_comercial_emp,
+        razon_social_emp,
+        correo_emp,
+        tel_contacto_emp,
+        direccion_emp,
+        sector_emp,
+        id_municipio_emp,
+        estado_activo_emp,
+        fecha_creacion_emp,
+        fecha_actualizacion_emp
+    FROM Empresa
+    WHERE
+        (p_id_emp IS NULL OR id_emp = p_id_emp)
+        AND (p_rnc_emp IS NULL OR rnc_emp = p_rnc_emp)
+        AND (p_nombre_comercial_emp IS NULL OR nombre_comercial_emp = p_nombre_comercial_emp)
+        AND (p_razon_social_emp IS NULL OR razon_social_emp = p_razon_social_emp)
+        AND (p_correo_emp IS NULL OR correo_emp = p_correo_emp)
+        AND (
+            p_tel_contacto_emp IS NULL
+            OR (p_tel_contacto_emp != '__NULL__' AND tel_contacto_emp = p_tel_contacto_emp)
+            OR (p_tel_contacto_emp = '__NULL__' AND tel_contacto_emp IS NULL)
+        )
+        AND (p_direccion_emp IS NULL OR direccion_emp = p_direccion_emp)
+        AND (p_sector_emp IS NULL OR sector_emp = p_sector_emp)
+        AND (p_id_municipio_emp IS NULL OR id_municipio_emp = p_id_municipio_emp)
+        AND (p_estado_activo_emp IS NULL OR estado_activo_emp = p_estado_activo_emp)
+        AND (p_fecha_creacion_emp IS NULL OR fecha_creacion_emp = p_fecha_creacion_emp)
+        AND (p_fecha_actualizacion_emp IS NULL OR fecha_actualizacion_emp = p_fecha_actualizacion_emp)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetTipoMuestra (
+    IN p_id_tipo_muestra INT,
+    IN p_abreviatura_tipo_muestra CHAR(2),
+    IN p_nombre_tipo_muestra VARCHAR(255),
+    IN p_estado_activo_tipo_muestra BOOLEAN
+)
+BEGIN
+    SELECT
+        id_tipo_muestra,
+        abreviatura_tipo_muestra,
+        nombre_tipo_muestra,
+        estado_activo_tipo_muestra
+    FROM TipoMuestra
+    WHERE
+        (p_id_tipo_muestra IS NULL OR id_tipo_muestra = p_id_tipo_muestra)
+        AND (p_abreviatura_tipo_muestra IS NULL OR abreviatura_tipo_muestra = p_abreviatura_tipo_muestra)
+        AND (p_nombre_tipo_muestra IS NULL OR nombre_tipo_muestra = p_nombre_tipo_muestra)
+        AND (p_estado_activo_tipo_muestra IS NULL OR estado_activo_tipo_muestra = p_estado_activo_tipo_muestra)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetUsuario (
+    IN p_id_usuario INT,
+    IN p_cedula_usuario CHAR(11),
+    IN p_nombre_usuario VARCHAR(255),
+    IN p_correo_usuario VARCHAR(50),
+    IN p_password_usuario VARCHAR(255),
+    IN p_tel_contacto_usuario VARCHAR(15),
+    IN p_id_rol_usuario INT,
+	IN p_id_emp_usuario INT,
+    IN p_direccion_usuario VARCHAR(255),
+    IN p_sector_usuario VARCHAR(50),
+    IN p_id_municipio_usuario INT,
+    IN p_estado_activo_usuario BOOLEAN,
+    IN p_fecha_creacion_usuario TIMESTAMP,
+    IN p_fecha_actualizacion_usuario TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_usuario,
+        cedula_usuario,
+        nombre_usuario,
+        correo_usuario,
+        password_usuario,
+        tel_contacto_usuario,
+        id_rol_usuario,
+		id_emp_usuario,
+        direccion_usuario,
+        sector_usuario,
+        id_municipio_usuario,
+        estado_activo_usuario,
+        fecha_creacion_usuario,
+        fecha_actualizacion_usuario
+    FROM Usuario
+    WHERE
+        (p_id_usuario IS NULL OR id_usuario = p_id_usuario)
+        AND (p_cedula_usuario IS NULL OR cedula_usuario = p_cedula_usuario)
+        AND (p_nombre_usuario IS NULL OR nombre_usuario = p_nombre_usuario)
+        AND (p_correo_usuario IS NULL OR correo_usuario = p_correo_usuario)
+        AND (p_password_usuario IS NULL OR password_usuario = p_password_usuario)
+        AND (
+            p_tel_contacto_usuario IS NULL
+            OR (p_tel_contacto_usuario != '__NULL__' AND tel_contacto_usuario = p_tel_contacto_usuario)
+            OR (p_tel_contacto_usuario = '__NULL__' AND tel_contacto_usuario IS NULL)
+        )
+        AND (p_id_rol_usuario IS NULL OR id_rol_usuario = p_id_rol_usuario)
+		AND (
+            p_id_emp_usuario IS NULL
+            OR (p_id_emp_usuario != -9999 AND id_emp_usuario = p_id_emp_usuario)
+            OR (p_id_emp_usuario = -9999 AND id_emp_usuario IS NULL)
+        )
+        AND (
+            p_direccion_usuario IS NULL
+            OR (p_direccion_usuario != '__NULL__' AND direccion_usuario = p_direccion_usuario)
+            OR (p_direccion_usuario = '__NULL__' AND direccion_usuario IS NULL)
+        )
+        AND (
+            p_sector_usuario IS NULL
+            OR (p_sector_usuario != '__NULL__' AND sector_usuario = p_sector_usuario)
+            OR (p_sector_usuario = '__NULL__' AND sector_usuario IS NULL)
+        )
+        AND (
+            p_id_municipio_usuario IS NULL
+            OR (p_id_municipio_usuario != -9999 AND id_municipio_usuario = p_id_municipio_usuario)
+            OR (p_id_municipio_usuario = -9999 AND id_municipio_usuario IS NULL)
+        )
+        AND (p_estado_activo_usuario IS NULL OR estado_activo_usuario = p_estado_activo_usuario)
+        AND (p_fecha_creacion_usuario IS NULL OR fecha_creacion_usuario = p_fecha_creacion_usuario)
+        AND (p_fecha_actualizacion_usuario IS NULL OR fecha_actualizacion_usuario = p_fecha_actualizacion_usuario)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetMuestra (
+    IN p_id_muestra INT,
+    IN p_codigo_muestra VARCHAR(15),
+    IN p_id_solicitante_muestra INT,
+    IN p_id_emp_fabricante_muestra INT,
+    IN p_id_emp_distribuidor_muestra INT,
+    IN p_id_tipo_muestra INT,
+	IN p_nombre_producto_muestra VARCHAR(255),
+    IN p_condicion_muestra VARCHAR(20),
+    IN p_fecha_recepcion_muestra DATE,
+    IN p_id_lab_muestra INT,
+    IN p_condicion_transp_muestra VARCHAR(15),
+    IN p_condicion_almac_muestra VARCHAR(15),
+    IN p_temperatura_muestra DECIMAL(10,2),
+    IN p_color_muestra VARCHAR(20),
+    IN p_olor_muestra VARCHAR(20),
+    IN p_sabor_muestra VARCHAR(20),
+    IN p_aspecto_muestra VARCHAR(20),
+    IN p_textura_muestra VARCHAR(20),
+    IN p_peso_neto_muestra DECIMAL(10,2),
+    IN p_fecha_vencimiento_muestra DATE,
+    IN p_observaciones_muestra TEXT,
+    IN p_estado_muestra VARCHAR(20),
+    IN p_muestra_en_proceso BOOLEAN,
+    IN p_muestra_apta_para_consumo BOOLEAN,
+    IN p_muestra_validada BOOLEAN,
+    IN p_fecha_creacion_muestra TIMESTAMP,
+    IN p_fecha_actualizacion_muestra TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_muestra,
+        codigo_muestra,
+        id_solicitante_muestra,
+        id_emp_fabricante_muestra,
+        id_emp_distribuidor_muestra,
+        id_tipo_muestra,
+		nombre_producto_muestra,
+        condicion_muestra,
+        fecha_recepcion_muestra,
+        id_lab_muestra,
+        condicion_transp_muestra,
+        condicion_almac_muestra,
+        temperatura_muestra,
+        color_muestra,
+        olor_muestra,
+        sabor_muestra,
+        aspecto_muestra,
+        textura_muestra,
+        peso_neto_muestra,
+        fecha_vencimiento_muestra,
+        observaciones_muestra,
+        estado_muestra,
+        muestra_en_proceso,
+        muestra_apta_para_consumo,
+        muestra_validada,
+        fecha_creacion_muestra,
+        fecha_actualizacion_muestra
+    FROM Muestra
+    WHERE
+        (p_id_muestra IS NULL OR id_muestra = p_id_muestra)
+        AND (p_codigo_muestra IS NULL OR codigo_muestra = p_codigo_muestra)
+        AND (p_id_solicitante_muestra IS NULL OR id_solicitante_muestra = p_id_solicitante_muestra)
+        AND (p_id_emp_fabricante_muestra IS NULL OR id_emp_fabricante_muestra = p_id_emp_fabricante_muestra)
+        AND (p_id_emp_distribuidor_muestra IS NULL OR id_emp_distribuidor_muestra = p_id_emp_distribuidor_muestra)
+        AND (p_id_tipo_muestra IS NULL OR id_tipo_muestra = p_id_tipo_muestra)
+		AND (p_nombre_producto_muestra IS NULL OR nombre_producto_muestra = p_nombre_producto_muestra)
+        AND (p_condicion_muestra IS NULL OR condicion_muestra = p_condicion_muestra)
+        AND (p_fecha_recepcion_muestra IS NULL OR fecha_recepcion_muestra = p_fecha_recepcion_muestra)
+        AND (p_id_lab_muestra IS NULL OR id_lab_muestra = p_id_lab_muestra)
+        AND (p_condicion_transp_muestra IS NULL OR condicion_transp_muestra = p_condicion_transp_muestra)
+        AND (p_condicion_almac_muestra IS NULL OR condicion_almac_muestra = p_condicion_almac_muestra)
+        AND (
+            p_temperatura_muestra IS NULL
+            OR (p_temperatura_muestra != -9999.99 AND temperatura_muestra = p_temperatura_muestra)
+            OR (p_temperatura_muestra = -9999.99 AND temperatura_muestra IS NULL)
+        )
+        AND (
+            p_color_muestra IS NULL
+            OR (p_color_muestra != '__NULL__' AND color_muestra = p_color_muestra)
+            OR (p_color_muestra = '__NULL__' AND color_muestra IS NULL)
+        )
+        AND (
+            p_olor_muestra IS NULL
+            OR (p_olor_muestra != '__NULL__' AND olor_muestra = p_olor_muestra)
+            OR (p_olor_muestra = '__NULL__' AND olor_muestra IS NULL)
+        )
+        AND (
+            p_sabor_muestra IS NULL
+            OR (p_sabor_muestra != '__NULL__' AND sabor_muestra = p_sabor_muestra)
+            OR (p_sabor_muestra = '__NULL__' AND sabor_muestra IS NULL)
+        )
+        AND (
+            p_aspecto_muestra IS NULL
+            OR (p_aspecto_muestra != '__NULL__' AND aspecto_muestra = p_aspecto_muestra)
+            OR (p_aspecto_muestra = '__NULL__' AND aspecto_muestra IS NULL)
+        )
+        AND (
+            p_textura_muestra IS NULL
+            OR (p_textura_muestra != '__NULL__' AND textura_muestra = p_textura_muestra)
+            OR (p_textura_muestra = '__NULL__' AND textura_muestra IS NULL)
+        )
+        AND (
+            p_peso_neto_muestra IS NULL
+            OR (p_peso_neto_muestra != -9999.99 AND peso_neto_muestra = p_peso_neto_muestra)
+            OR (p_peso_neto_muestra = -9999.99 AND peso_neto_muestra IS NULL)
+        )
+        AND (
+            p_fecha_vencimiento_muestra IS NULL
+            OR (p_fecha_vencimiento_muestra != '1000-01-01' AND fecha_vencimiento_muestra = p_fecha_vencimiento_muestra)
+            OR (p_fecha_vencimiento_muestra = '1000-01-01' AND fecha_vencimiento_muestra IS NULL)
+        )
+        AND (
+            p_observaciones_muestra IS NULL
+            OR (p_observaciones_muestra != '__NULL__' AND observaciones_muestra = p_observaciones_muestra)
+            OR (p_observaciones_muestra = '__NULL__' AND observaciones_muestra IS NULL)
+        )
+        AND (p_estado_muestra IS NULL OR estado_muestra = p_estado_muestra)
+		AND (p_muestra_en_proceso IS NULL OR muestra_en_proceso = p_muestra_en_proceso)
+        AND (
+            p_muestra_apta_para_consumo IS NULL
+            OR (p_muestra_apta_para_consumo != -1 AND muestra_apta_para_consumo = p_muestra_apta_para_consumo)
+            OR (p_muestra_apta_para_consumo = -1 AND muestra_apta_para_consumo IS NULL)
+        )
+        AND (p_muestra_validada IS NULL OR muestra_validada = p_muestra_validada)
+        AND (p_fecha_creacion_muestra IS NULL OR fecha_creacion_muestra = p_fecha_creacion_muestra)
+        AND (p_fecha_actualizacion_muestra IS NULL OR fecha_actualizacion_muestra = p_fecha_actualizacion_muestra)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetAsignacion (
+    IN p_id_asignacion INT,
+    IN p_id_usuario INT,
+    IN p_id_muestra INT,
+    IN p_numero_fase_asignacion INT,
+    IN p_estado_asignacion VARCHAR(20),
+    IN p_fecha_inicio_asignacion DATETIME,
+    IN p_fecha_limite_asignacion DATETIME,
+    IN p_fecha_fin_asignacion DATETIME,
+    IN p_motivos_devolucion TEXT,
+    IN p_comentarios_a_siguiente_fase TEXT,
+    IN p_fecha_creacion_asignacion TIMESTAMP,
+    IN p_fecha_actualizacion_asignacion TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_asignacion,
+        id_usuario,
+        id_muestra,
+        numero_fase_asignacion,
+        estado_asignacion,
+        fecha_inicio_asignacion,
+        fecha_limite_asignacion,
+        fecha_fin_asignacion,
+        motivos_devolucion,
+        comentarios_a_siguiente_fase,
+        fecha_creacion_asignacion,
+        fecha_actualizacion_asignacion
+    FROM Asignacion
+    WHERE
+        (p_id_asignacion IS NULL OR id_asignacion = p_id_asignacion)
+        AND (p_id_usuario IS NULL OR id_usuario = p_id_usuario)
+        AND (p_id_muestra IS NULL OR id_muestra = p_id_muestra)
+		AND (p_numero_fase_asignacion IS NULL OR numero_fase_asignacion = p_numero_fase_asignacion)
+        AND (p_estado_asignacion IS NULL OR estado_asignacion = p_estado_asignacion)
+        AND (
+            p_fecha_inicio_asignacion IS NULL
+            OR (p_fecha_inicio_asignacion != '1000-01-01 00:00:00' AND fecha_inicio_asignacion = p_fecha_inicio_asignacion)
+            OR (p_fecha_inicio_asignacion = '1000-01-01 00:00:00' AND fecha_inicio_asignacion IS NULL)
+        )
+        AND (
+            p_fecha_limite_asignacion IS NULL
+            OR (p_fecha_limite_asignacion != '1000-01-01 00:00:00' AND fecha_limite_asignacion = p_fecha_limite_asignacion)
+            OR (p_fecha_limite_asignacion = '1000-01-01 00:00:00' AND fecha_limite_asignacion IS NULL)
+        )
+        AND (
+            p_fecha_fin_asignacion IS NULL
+            OR (p_fecha_fin_asignacion != '1000-01-01 00:00:00' AND fecha_fin_asignacion = p_fecha_fin_asignacion)
+            OR (p_fecha_fin_asignacion = '1000-01-01 00:00:00' AND fecha_fin_asignacion IS NULL)
+        )
+		AND (
+            p_motivos_devolucion IS NULL
+            OR (p_motivos_devolucion != '__NULL__' AND motivos_devolucion = p_motivos_devolucion)
+            OR (p_motivos_devolucion = '__NULL__' AND motivos_devolucion IS NULL)
+        )
+		AND (
+            p_comentarios_a_siguiente_fase IS NULL
+            OR (p_comentarios_a_siguiente_fase != '__NULL__' AND comentarios_a_siguiente_fase = p_comentarios_a_siguiente_fase)
+            OR (p_comentarios_a_siguiente_fase = '__NULL__' AND comentarios_a_siguiente_fase IS NULL)
+        )
+        AND (p_fecha_creacion_asignacion IS NULL OR fecha_creacion_asignacion = p_fecha_creacion_asignacion)
+        AND (p_fecha_actualizacion_asignacion IS NULL OR fecha_actualizacion_asignacion = p_fecha_actualizacion_asignacion)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetTipoPrueba (
+    IN p_id_tipo_prueba INT,
+    IN p_abreviatura_tipo_prueba CHAR(2),
+    IN p_nombre_tipo_prueba VARCHAR(255),
+    IN p_estado_activo_tipo_prueba BOOLEAN
+)
+BEGIN
+    SELECT
+        id_tipo_prueba,
+        abreviatura_tipo_prueba,
+        nombre_tipo_prueba,
+        estado_activo_tipo_prueba
+    FROM TipoPrueba
+    WHERE
+        (p_id_tipo_prueba IS NULL OR id_tipo_prueba = p_id_tipo_prueba)
+        AND (p_abreviatura_tipo_prueba IS NULL OR abreviatura_tipo_prueba = p_abreviatura_tipo_prueba)
+        AND (p_nombre_tipo_prueba IS NULL OR nombre_tipo_prueba = p_nombre_tipo_prueba)
+        AND (p_estado_activo_tipo_prueba IS NULL OR estado_activo_tipo_prueba = p_estado_activo_tipo_prueba)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetPrueba (
+    IN p_id_prueba INT,
+    IN p_codigo_prueba CHAR(20),
+    IN p_id_muestra INT,
+    IN p_id_tipo_prueba INT,
+    IN p_notas_prueba TEXT,
+    IN p_prueba_aprobada BOOLEAN,
+    IN p_prueba_validada BOOLEAN,
+	IN p_estado_activo_prueba BOOLEAN,
+    IN p_fecha_creacion_prueba TIMESTAMP,
+    IN p_fecha_actualizacion_prueba TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_prueba,
+        codigo_prueba,
+        id_muestra,
+        id_tipo_prueba,
+        notas_prueba,
+        prueba_aprobada,
+        prueba_validada,
+		estado_activo_prueba,
+        fecha_creacion_prueba,
+        fecha_actualizacion_prueba
+    FROM Prueba
+    WHERE
+        (p_id_prueba IS NULL OR id_prueba = p_id_prueba)
+        AND (p_codigo_prueba IS NULL OR codigo_prueba = p_codigo_prueba)
+        AND (p_id_muestra IS NULL OR id_muestra = p_id_muestra)
+        AND (p_id_tipo_prueba IS NULL OR id_tipo_prueba = p_id_tipo_prueba)
+        AND (
+            p_notas_prueba IS NULL
+            OR (p_notas_prueba != '__NULL__' AND notas_prueba = p_notas_prueba)
+            OR (p_notas_prueba = '__NULL__' AND notas_prueba IS NULL)
+        )
+        AND (
+            p_prueba_aprobada IS NULL
+            OR (p_prueba_aprobada != -1 AND prueba_aprobada = p_prueba_aprobada)
+            OR (p_prueba_aprobada = -1 AND prueba_aprobada IS NULL)
+        )
+        AND (p_prueba_validada IS NULL OR prueba_validada = p_prueba_validada)
+		AND (p_estado_activo_prueba IS NULL OR estado_activo_prueba = p_estado_activo_prueba)
+        AND (p_fecha_creacion_prueba IS NULL OR fecha_creacion_prueba = p_fecha_creacion_prueba)
+        AND (p_fecha_actualizacion_prueba IS NULL OR fecha_actualizacion_prueba = p_fecha_actualizacion_prueba)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetParametro (
+    IN p_id_parametro INT,
+    IN p_codigo_parametro CHAR(7),
+    IN p_id_tipo_prueba INT,
+    IN p_nombre_parametro VARCHAR(255),
+	IN p_tipo_parametro VARCHAR(10),
+    IN p_descripcion_parametro TEXT,
+    IN p_unidad_medida_parametro VARCHAR(20),
+    IN p_usar_parametro_en_pruebas BOOLEAN,
+    IN p_fecha_creacion_parametro TIMESTAMP,
+    IN p_fecha_actualizacion_parametro TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_parametro,
+        codigo_parametro,
+        id_tipo_prueba,
+        nombre_parametro,
+		tipo_parametro,
+        descripcion_parametro,
+        unidad_medida_parametro,
+        usar_parametro_en_pruebas,
+        fecha_creacion_parametro,
+        fecha_actualizacion_parametro
+    FROM Parametro
+    WHERE
+        (p_id_parametro IS NULL OR id_parametro = p_id_parametro)
+        AND (p_codigo_parametro IS NULL OR codigo_parametro = p_codigo_parametro)
+        AND (p_id_tipo_prueba IS NULL OR id_tipo_prueba = p_id_tipo_prueba)
+        AND (p_nombre_parametro IS NULL OR nombre_parametro = p_nombre_parametro)
+		AND (p_tipo_parametro IS NULL OR tipo_parametro = p_tipo_parametro)
+        AND (
+            p_descripcion_parametro IS NULL
+            OR (p_descripcion_parametro != '__NULL__' AND descripcion_parametro = p_descripcion_parametro)
+            OR (p_descripcion_parametro = '__NULL__' AND descripcion_parametro IS NULL)
+        )
+        AND (
+            p_unidad_medida_parametro IS NULL
+            OR (p_unidad_medida_parametro != '__NULL__' AND unidad_medida_parametro = p_unidad_medida_parametro)
+            OR (p_unidad_medida_parametro = '__NULL__' AND unidad_medida_parametro IS NULL)
+        )
+        AND (p_usar_parametro_en_pruebas IS NULL OR usar_parametro_en_pruebas = p_usar_parametro_en_pruebas)
+        AND (p_fecha_creacion_parametro IS NULL OR fecha_creacion_parametro = p_fecha_creacion_parametro)
+        AND (p_fecha_actualizacion_parametro IS NULL OR fecha_actualizacion_parametro = p_fecha_actualizacion_parametro)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetResultado (
+    IN p_id_prueba INT,
+    IN p_id_parametro INT,
+    IN p_resultado_numerico DECIMAL(10,2),
+    IN p_resultado_texto VARCHAR(255),
+    IN p_observaciones_resultado TEXT,
+    IN p_resultado_dentro_de_limites BOOLEAN,
+    IN p_fecha_creacion_resultado TIMESTAMP,
+    IN p_fecha_actualizacion_resultado TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_prueba,
+        id_parametro,
+        resultado_numerico,
+        resultado_texto,
+        observaciones_resultado,
+        resultado_dentro_de_limites,
+        fecha_creacion_resultado,
+        fecha_actualizacion_resultado
+    FROM Resultado
+    WHERE
+        (p_id_prueba IS NULL OR id_prueba = p_id_prueba)
+        AND (p_id_parametro IS NULL OR id_parametro = p_id_parametro)
+        AND (
+            p_resultado_numerico IS NULL
+            OR (p_resultado_numerico != -9999.99 AND resultado_numerico = p_resultado_numerico)
+            OR (p_resultado_numerico = -9999.99 AND resultado_numerico IS NULL)
+        )
+        AND (
+            p_resultado_texto IS NULL
+            OR (p_resultado_texto != '__NULL__' AND resultado_texto = p_resultado_texto)
+            OR (p_resultado_texto = '__NULL__' AND resultado_texto IS NULL)
+        )
+        AND (
+            p_observaciones_resultado IS NULL
+            OR (p_observaciones_resultado != '__NULL__' AND observaciones_resultado = p_observaciones_resultado)
+            OR (p_observaciones_resultado = '__NULL__' AND observaciones_resultado IS NULL)
+        )
+        AND (p_resultado_dentro_de_limites IS NULL OR resultado_dentro_de_limites = p_resultado_dentro_de_limites)
+        AND (p_fecha_creacion_resultado IS NULL OR fecha_creacion_resultado = p_fecha_creacion_resultado)
+        AND (p_fecha_actualizacion_resultado IS NULL OR fecha_actualizacion_resultado = p_fecha_actualizacion_resultado)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetColeccionNormas (
+    IN p_id_coleccion_normas INT,
+    IN p_sigla_coleccion_normas VARCHAR(10),
+    IN p_nombre_coleccion_normas VARCHAR(255),
+    IN p_estado_activo_coleccion BOOLEAN,
+    IN p_fecha_creacion_coleccion TIMESTAMP,
+    IN p_fecha_actualizacion_coleccion TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_coleccion_normas,
+        sigla_coleccion_normas,
+        nombre_coleccion_normas,
+        estado_activo_coleccion,
+        fecha_creacion_coleccion,
+        fecha_actualizacion_coleccion
+    FROM ColeccionNormas
+    WHERE
+        (p_id_coleccion_normas IS NULL OR id_coleccion_normas = p_id_coleccion_normas)
+        AND (p_sigla_coleccion_normas IS NULL OR sigla_coleccion_normas = p_sigla_coleccion_normas)
+        AND (p_nombre_coleccion_normas IS NULL OR nombre_coleccion_normas = p_nombre_coleccion_normas)
+        AND (p_estado_activo_coleccion IS NULL OR estado_activo_coleccion = p_estado_activo_coleccion)
+        AND (p_fecha_creacion_coleccion IS NULL OR fecha_creacion_coleccion = p_fecha_creacion_coleccion)
+        AND (p_fecha_actualizacion_coleccion IS NULL OR fecha_actualizacion_coleccion = p_fecha_actualizacion_coleccion)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetNorma (
+    IN p_id_norma INT,
+    IN p_codigo_norma VARCHAR(60),
+    IN p_id_coleccion_normas INT,
+    IN p_numero_norma VARCHAR(50),
+    IN p_titulo_norma VARCHAR(255),
+    IN p_descripcion_norma TEXT,
+    IN p_anio_norma YEAR,
+    IN p_referencia_acceso_norma TEXT,
+    IN p_estado_activo_norma BOOLEAN,
+    IN p_fecha_creacion_norma TIMESTAMP,
+    IN p_fecha_actualizacion_norma TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_norma,
+        codigo_norma,
+        id_coleccion_normas,
+        numero_norma,
+        titulo_norma,
+        descripcion_norma,
+        anio_norma,
+        referencia_acceso_norma,
+        estado_activo_norma,
+        fecha_creacion_norma,
+        fecha_actualizacion_norma
+    FROM Norma
+    WHERE
+        (p_id_norma IS NULL OR id_norma = p_id_norma)
+        AND (p_codigo_norma IS NULL OR codigo_norma = p_codigo_norma)
+        AND (p_id_coleccion_normas IS NULL OR id_coleccion_normas = p_id_coleccion_normas)
+        AND (p_numero_norma IS NULL OR numero_norma = p_numero_norma)
+        AND (p_titulo_norma IS NULL OR titulo_norma = p_titulo_norma)
+        AND (
+            p_descripcion_norma IS NULL
+            OR (p_descripcion_norma != '__NULL__' AND descripcion_norma = p_descripcion_norma)
+            OR (p_descripcion_norma = '__NULL__' AND descripcion_norma IS NULL)
+        )
+        AND (p_anio_norma IS NULL OR anio_norma = p_anio_norma)
+        AND (p_referencia_acceso_norma IS NULL OR referencia_acceso_norma = p_referencia_acceso_norma)
+        AND (p_estado_activo_norma IS NULL OR estado_activo_norma = p_estado_activo_norma)
+        AND (p_fecha_creacion_norma IS NULL OR fecha_creacion_norma = p_fecha_creacion_norma)
+        AND (p_fecha_actualizacion_norma IS NULL OR fecha_actualizacion_norma = p_fecha_actualizacion_norma)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetLimitesDeConfianza (
+    IN p_id_parametro INT,
+    IN p_id_norma INT,
+    IN p_valor_min_limite_parametro DECIMAL(10,2),
+    IN p_valor_max_limite_parametro DECIMAL(10,2),
+    IN p_valor_texto_limite_parametro VARCHAR(255),
+    IN p_usar_limites_en_pruebas BOOLEAN,
+    IN p_fecha_creacion_limites TIMESTAMP,
+    IN p_fecha_actualizacion_limites TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_parametro,
+        id_norma,
+        valor_min_limite_parametro,
+        valor_max_limite_parametro,
+        valor_texto_limite_parametro,
+        usar_limites_en_pruebas,
+        fecha_creacion_limites,
+        fecha_actualizacion_limites
+    FROM LimitesDeConfianza
+    WHERE
+        (p_id_parametro IS NULL OR id_parametro = p_id_parametro)
+        AND (p_id_norma IS NULL OR id_norma = p_id_norma)
+        AND (
+            p_valor_min_limite_parametro IS NULL
+            OR (p_valor_min_limite_parametro != -9999.99 AND valor_min_limite_parametro = p_valor_min_limite_parametro)
+            OR (p_valor_min_limite_parametro = -9999.99 AND valor_min_limite_parametro IS NULL)
+        )
+        AND (
+            p_valor_max_limite_parametro IS NULL
+            OR (p_valor_max_limite_parametro != -9999.99 AND valor_max_limite_parametro = p_valor_max_limite_parametro)
+            OR (p_valor_max_limite_parametro = -9999.99 AND valor_max_limite_parametro IS NULL)
+        )
+        AND (
+            p_valor_texto_limite_parametro IS NULL
+            OR (p_valor_texto_limite_parametro != '__NULL__' AND valor_texto_limite_parametro = p_valor_texto_limite_parametro)
+            OR (p_valor_texto_limite_parametro = '__NULL__' AND valor_texto_limite_parametro IS NULL)
+        )
+        AND (p_usar_limites_en_pruebas IS NULL OR usar_limites_en_pruebas = p_usar_limites_en_pruebas)
+        AND (p_fecha_creacion_limites IS NULL OR fecha_creacion_limites = p_fecha_creacion_limites)
+        AND (p_fecha_actualizacion_limites IS NULL OR fecha_actualizacion_limites = p_fecha_actualizacion_limites)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetParametroDeTipoMuestra (
+    IN p_id_tipo_muestra INT,
+    IN p_id_parametro INT
+)
+BEGIN
+    SELECT
+        id_tipo_muestra,
+        id_parametro
+    FROM ParametroDeTipoMuestra
+    WHERE
+        (p_id_tipo_muestra IS NULL OR id_tipo_muestra = p_id_tipo_muestra)
+        AND (p_id_parametro IS NULL OR id_parametro = p_id_parametro)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetLogAcciones (
+    IN p_id_accion INT,
+    IN p_id_asignacion INT,
+    IN p_descripcion_accion TEXT,
+    IN p_fecha_accion TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_accion,
+        id_asignacion,
+        descripcion_accion,
+        fecha_accion
+    FROM LogAcciones
+    WHERE
+        (p_id_accion IS NULL OR id_accion = p_id_accion)
+        AND (p_id_asignacion IS NULL OR id_asignacion = p_id_asignacion)
+        AND (p_descripcion_accion IS NULL OR descripcion_accion = p_descripcion_accion)
+        AND (p_fecha_accion IS NULL OR fecha_accion = p_fecha_accion)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetLogEventosSistema (
+    IN p_id_evento INT,
+    IN p_id_usuario INT,
+    IN p_descripcion_evento TEXT,
+    IN p_ip_origen_evento VARCHAR(50),
+    IN p_fecha_evento TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_evento,
+        id_usuario,
+        descripcion_evento,
+        ip_origen_evento,
+        fecha_evento
+    FROM LogEventosSistema
+    WHERE
+        (p_id_evento IS NULL OR id_evento = p_id_evento)
+        AND (p_id_usuario IS NULL OR id_usuario = p_id_usuario)
+        AND (p_descripcion_evento IS NULL OR descripcion_evento = p_descripcion_evento)
+        AND (p_ip_origen_evento IS NULL OR ip_origen_evento = p_ip_origen_evento)
+        AND (p_fecha_evento IS NULL OR fecha_evento = p_fecha_evento)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetNotificacion (
+    IN p_id_notificacion INT,
+    IN p_id_asignacion INT,
+    IN p_tipo_notificacion VARCHAR(20),
+    IN p_medio_notificacion VARCHAR(10),
+    IN p_estado_envio_notificacion VARCHAR(10),
+    IN p_fecha_creacion_notificacion TIMESTAMP,
+    IN p_fecha_actualizacion_notificacion TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_notificacion,
+        id_asignacion,
+        tipo_notificacion,
+        medio_notificacion,
+        estado_envio_notificacion,
+        fecha_creacion_notificacion,
+        fecha_actualizacion_notificacion
+    FROM Notificacion
+    WHERE
+        (p_id_notificacion IS NULL OR id_notificacion = p_id_notificacion)
+        AND (p_id_asignacion IS NULL OR id_asignacion = p_id_asignacion)
+        AND (p_tipo_notificacion IS NULL OR tipo_notificacion = p_tipo_notificacion)
+        AND (p_medio_notificacion IS NULL OR medio_notificacion = p_medio_notificacion)
+        AND (p_estado_envio_notificacion IS NULL OR estado_envio_notificacion = p_estado_envio_notificacion)
+        AND (p_fecha_creacion_notificacion IS NULL OR fecha_creacion_notificacion = fecha_creacion_notificacion)
+        AND (p_fecha_actualizacion_notificacion IS NULL OR fecha_actualizacion_notificacion = p_fecha_actualizacion_notificacion)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetDocumento (
+    IN p_id_documento INT,
+    IN p_id_muestra INT,
+    IN p_tipo_documento VARCHAR(20),
+    IN p_ruta_archivo_documento VARCHAR(255),
+    IN p_numero_version_documento INT,
+    IN p_id_usuario_emisor INT,
+    IN p_fecha_creacion_documento TIMESTAMP
+)
+BEGIN
+    SELECT
+        id_documento,
+        id_muestra,
+        tipo_documento,
+        ruta_archivo_documento,
+        numero_version_documento,
+        id_usuario_emisor,
+        fecha_creacion_documento
+    FROM Documento
+    WHERE
+        (p_id_documento IS NULL OR id_documento = p_id_documento)
+        AND (p_id_muestra IS NULL OR id_muestra = p_id_muestra)
+        AND (p_tipo_documento IS NULL OR tipo_documento = p_tipo_documento)
+        AND (p_ruta_archivo_documento IS NULL OR ruta_archivo_documento = p_ruta_archivo_documento)
+        AND (p_numero_version_documento IS NULL OR numero_version_documento = p_numero_version_documento)
+        AND (p_id_usuario_emisor IS NULL OR id_usuario_emisor = p_id_usuario_emisor)
+        AND (p_fecha_creacion_documento IS NULL OR fecha_creacion_documento = p_fecha_creacion_documento)
+    ;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spGetEnumValues (
+    IN p_entidad VARCHAR(255),
+    IN p_atributo VARCHAR(255)
+)
+BEGIN
+    DECLARE enum_raw TEXT;
+    DECLARE enum_json TEXT;
+
+    SELECT SUBSTRING(COLUMN_TYPE, 6, CHAR_LENGTH(COLUMN_TYPE) - 6)
+    INTO enum_raw
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+		TABLE_SCHEMA = DATABASE()
+		AND TABLE_NAME = p_entidad
+		AND COLUMN_NAME = p_atributo
+    LIMIT 1;
+
+    IF enum_raw IS NULL THEN
+        SELECT CONCAT('La columna no se encontró o no es un ENUM: ', p_entidad, '.', p_atributo) AS error;
+    ELSE
+        SET enum_raw = REPLACE(enum_raw, '''', '"');
+        SET enum_json = CONCAT('[', enum_raw, ']');
+
+        SET @sql = CONCAT(
+            'SELECT jt.opcion AS `', p_atributo, '` ',
+            'FROM JSON_TABLE(', QUOTE(enum_json), ', "$[*]" COLUMNS (opcion VARCHAR(255) PATH "$")) jt;'
+        );
+
+        PREPARE stmt FROM @sql;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetProvincia (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_provincia INT,
+    IN p_nombre_provincia VARCHAR(255)
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO Provincia (nombre_provincia)
+        VALUES (p_nombre_provincia);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Provincia
+        SET nombre_provincia = p_nombre_provincia
+        WHERE id_provincia = p_id_provincia;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Provincia
+        SET estado_activo_provincia = FALSE
+        WHERE id_provincia = p_id_provincia;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Provincia
+        SET estado_activo_provincia = TRUE
+        WHERE id_provincia = p_id_provincia;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetMunicipio (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_municipio INT,
+    IN p_nombre_municipio VARCHAR(255),
+    IN p_id_provincia INT
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO Municipio (nombre_municipio, id_provincia)
+        VALUES (p_nombre_municipio, p_id_provincia);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Municipio
+        SET nombre_municipio = p_nombre_municipio,
+            id_provincia = p_id_provincia
+        WHERE id_municipio = p_id_municipio;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Municipio
+        SET estado_activo_municipio = FALSE
+        WHERE id_municipio = p_id_municipio;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Municipio
+        SET estado_activo_municipio = TRUE
+        WHERE id_municipio = p_id_municipio;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetRolUsuario (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_rol_usuario INT,
+    IN p_nombre_rol_usuario VARCHAR(255)
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO RolUsuario (nombre_rol_usuario)
+        VALUES (p_nombre_rol_usuario);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE RolUsuario
+        SET nombre_rol_usuario = p_nombre_rol_usuario
+        WHERE id_rol_usuario = p_id_rol_usuario;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE RolUsuario
+        SET estado_activo_rol_usuario = FALSE
+        WHERE id_rol_usuario = p_id_rol_usuario;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE RolUsuario
+        SET estado_activo_rol_usuario = TRUE
+        WHERE id_rol_usuario = p_id_rol_usuario;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetLaboratorio (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_lab INT,
+    IN p_nombre_lab VARCHAR(255),
+    IN p_correo_lab VARCHAR(50),
+    IN p_tel_contacto_lab VARCHAR(15),
+    IN p_direccion_lab VARCHAR(100),
+    IN p_sector_lab VARCHAR(50),
+    IN p_id_municipio_lab INT
+)
+BEGIN
+	IF p_operacion IN (1,2) THEN
+		IF NOT fnEmailValidation(p_correo_lab) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo electrónico proporcionado no es válido.';
+        END IF;
+    END IF;
+    
+    IF p_operacion = 1 THEN
+        INSERT INTO Laboratorio (nombre_lab, correo_lab, tel_contacto_lab, direccion_lab, sector_lab, id_municipio_lab)
+        VALUES (p_nombre_lab, p_correo_lab, p_tel_contacto_lab, p_direccion_lab, p_sector_lab, p_id_municipio_lab);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Laboratorio
+        SET nombre_lab = p_nombre_lab,
+            correo_lab = p_correo_lab,
+            tel_contacto_lab = p_tel_contacto_lab,
+            direccion_lab = p_direccion_lab,
+            sector_lab = p_sector_lab,
+            id_municipio_lab = p_id_municipio_lab
+        WHERE id_lab = p_id_lab;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Laboratorio
+        SET estado_activo_lab = FALSE
+        WHERE id_lab = p_id_lab;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Laboratorio
+        SET estado_activo_lab = TRUE
+        WHERE id_lab = p_id_lab;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetEmpresa (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_emp INT,
+    IN p_rnc_emp CHAR(9),
+    IN p_nombre_comercial_emp VARCHAR(255),
+    IN p_razon_social_emp VARCHAR(255),
+    IN p_correo_emp VARCHAR(50),
+    IN p_tel_contacto_emp VARCHAR(15),
+    IN p_direccion_emp VARCHAR(100),
+    IN p_sector_emp VARCHAR(50),
+    IN p_id_municipio_emp INT
+)
+BEGIN
+	IF p_operacion IN (1,2) THEN
+		IF NOT fnEmailValidation(p_correo_emp) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo electrónico proporcionado no es válido.';
+        END IF;
+    END IF;
+    
+    IF p_operacion = 1 THEN
+        INSERT INTO Empresa (rnc_emp, nombre_comercial_emp, razon_social_emp, correo_emp, tel_contacto_emp, direccion_emp, sector_emp, id_municipio_emp)
+        VALUES (p_rnc_emp, p_nombre_comercial_emp, p_razon_social_emp, p_correo_emp, p_tel_contacto_emp, p_direccion_emp, p_sector_emp, p_id_municipio_emp);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Empresa
+        SET rnc_emp = p_rnc_emp,
+            nombre_comercial_emp = p_nombre_comercial_emp,
+            razon_social_emp = p_razon_social_emp,
+            correo_emp = p_correo_emp,
+            tel_contacto_emp = p_tel_contacto_emp,
+            direccion_emp = p_direccion_emp,
+            sector_emp = p_sector_emp,
+            id_municipio_emp = p_id_municipio_emp
+        WHERE id_emp = p_id_emp;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Empresa
+        SET estado_activo_emp = FALSE
+        WHERE id_emp = p_id_emp;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Empresa
+        SET estado_activo_emp = TRUE
+        WHERE id_emp = p_id_emp;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetTipoMuestra (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_tipo_muestra INT,
+    IN p_abreviatura_tipo_muestra CHAR(2),
+    IN p_nombre_tipo_muestra VARCHAR(255)
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO TipoMuestra (abreviatura_tipo_muestra, nombre_tipo_muestra)
+        VALUES (p_abreviatura_tipo_muestra, p_nombre_tipo_muestra);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE TipoMuestra
+        SET abreviatura_tipo_muestra = p_abreviatura_tipo_muestra,
+            nombre_tipo_muestra = p_nombre_tipo_muestra
+        WHERE id_tipo_muestra = p_id_tipo_muestra;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE TipoMuestra
+        SET estado_activo_tipo_muestra = FALSE
+        WHERE id_tipo_muestra = p_id_tipo_muestra;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE TipoMuestra
+        SET estado_activo_tipo_muestra = TRUE
+        WHERE id_tipo_muestra = p_id_tipo_muestra;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetUsuario (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_usuario INT,
+    IN p_cedula_usuario CHAR(11),
+    IN p_nombre_usuario VARCHAR(255),
+    IN p_correo_usuario VARCHAR(50),
+    IN p_password_usuario VARCHAR(255),
+    IN p_tel_contacto_usuario VARCHAR(15),
+    IN p_id_rol_usuario INT,
+	IN p_id_emp_usuario INT,
+    IN p_direccion_usuario VARCHAR(255),
+    IN p_sector_usuario VARCHAR(50),
+    IN p_id_municipio_usuario INT
+)
+BEGIN
+    DECLARE v_id_rol_actual INT;
+	DECLARE v_id_rol_nuevo INT;
+	DECLARE v_id_asignacion_insertada INT;
+    
+    IF p_operacion IN (1,2) THEN
+		IF NOT fnEmailValidation(p_correo_usuario) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo electrónico proporcionado no es válido.';        
+        ELSEIF p_id_rol_usuario = 5 AND p_id_emp_usuario IS NULL THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Un usuario solicitante debe tener una empresa asociada.';
+		ELSEIF p_id_rol_usuario <> 5 AND p_id_emp_usuario IS NOT NULL THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo los solicitantes pueden tener una empresa asociada.';
+		END IF;
+	END IF;
+    
+	IF p_operacion <> 1 THEN
+		SELECT id_rol_usuario INTO v_id_rol_actual
+		FROM Usuario
+		WHERE id_usuario = p_id_usuario;
+		
+		SET v_id_rol_nuevo = v_id_rol_actual;
+    END IF;
+    
+    IF p_operacion = 1 THEN
+        INSERT INTO Usuario (cedula_usuario, nombre_usuario, correo_usuario, password_usuario, tel_contacto_usuario, id_rol_usuario, id_emp_usuario, direccion_usuario, sector_usuario, id_municipio_usuario)
+        VALUES (p_cedula_usuario, p_nombre_usuario, p_correo_usuario, p_password_usuario, p_tel_contacto_usuario, p_id_rol_usuario, p_id_emp_usuario, p_direccion_usuario, p_sector_usuario, p_id_municipio_usuario);
+		
+        SET v_id_rol_actual = p_id_rol_usuario;
+        
+	ELSEIF p_operacion = 2 THEN    
+		UPDATE Usuario
+		SET cedula_usuario = p_cedula_usuario,
+			nombre_usuario = p_nombre_usuario,
+			correo_usuario = p_correo_usuario,
+			password_usuario = p_password_usuario,
+			tel_contacto_usuario = p_tel_contacto_usuario,
+			id_rol_usuario = p_id_rol_usuario,
+			id_emp_usuario = p_id_emp_usuario,
+			direccion_usuario = p_direccion_usuario,
+			sector_usuario = p_sector_usuario,
+			id_municipio_usuario = p_id_municipio_usuario
+		WHERE id_usuario = p_id_usuario;
+		
+		SET v_id_rol_nuevo = p_id_rol_usuario;
+	
+    ELSEIF p_operacion = 3 THEN
+		UPDATE Usuario
+		SET estado_activo_usuario = FALSE
+		WHERE id_usuario = p_id_usuario;
+		
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Usuario
+        SET estado_activo_usuario = TRUE
+        WHERE id_usuario = p_id_usuario;
+    END IF;
+    
+	IF v_id_rol_actual IN (2,3,4) THEN
+		IF p_operacion IN (1,4) THEN
+			BEGIN
+				DECLARE v_id_muestra INT;
+				DECLARE done INT DEFAULT 0;
+				
+				DECLARE cur CURSOR FOR
+					SELECT id_muestra
+					FROM Muestra
+					WHERE estado_muestra = CASE
+												WHEN v_id_rol_actual = 2 THEN 'Recibida'
+												WHEN v_id_rol_actual = 3 THEN 'En análisis'
+												WHEN v_id_rol_actual = 4 THEN 'Evaluada'
+										   END
+						AND muestra_en_proceso = FALSE;
+				
+				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+				
+				OPEN cur;
+				read_loop: LOOP
+					FETCH cur INTO v_id_muestra;
+					IF done THEN
+						LEAVE read_loop;
+					END IF;
+					
+					CALL spSetAsignacion(1, NULL, p_id_usuario, v_id_muestra, NULL, NULL, NULL, @v_id_asignacion_out);
+					SET v_id_asignacion_insertada = @v_id_asignacion_out;
+					CALL spSetAsignacion(2, v_id_asignacion_insertada, NULL, NULL, 'En proceso', NULL, NULL, @v_dummy);
+						
+					UPDATE Muestra
+					SET muestra_en_proceso = TRUE
+					WHERE id_muestra = v_id_muestra;
+				END LOOP;
+				CLOSE cur;
+			END;
+		
+		ELSEIF (p_operacion = 2 AND v_id_rol_nuevo <> v_id_rol_actual) OR p_operacion = 3 THEN		
+			BEGIN
+				DECLARE v_asignacion_a_cancelar INT;
+				DECLARE done INT DEFAULT 0;
+				
+				DECLARE cur CURSOR FOR
+					SELECT a.id_asignacion
+					FROM Asignacion a
+					INNER JOIN Muestra m ON m.id_muestra = a.id_muestra
+					WHERE a.id_usuario = p_id_usuario
+						AND m.estado_muestra NOT IN ('Certificada', 'Descartada')
+						AND (a.estado_asignacion IN ('Pendiente', 'En proceso')
+							OR (a.estado_asignacion = 'Finalizada'
+								AND NOT EXISTS (
+									SELECT 1
+									FROM Asignacion a2
+									WHERE a2.id_usuario = a.id_usuario
+										AND a2.id_muestra = a.id_muestra
+										AND a2.id_asignacion > a.id_asignacion)));
+				
+				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+				
+				OPEN cur;
+				read_loop: LOOP
+					FETCH cur INTO v_asignacion_a_cancelar;
+					IF done THEN
+						LEAVE read_loop;
+					END IF;
+					
+					CALL spSetAsignacion(3, v_asignacion_a_cancelar, NULL, NULL, NULL, NULL, NULL, @v_dummy);
+				END LOOP;
+				CLOSE cur;
+			END;
+		END IF;
+	END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetMuestra (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_muestra INT,
+    IN p_id_solicitante_muestra INT,
+    IN p_id_emp_fabricante_muestra INT,
+    IN p_id_emp_distribuidor_muestra INT,
+    IN p_id_tipo_muestra INT,
+	IN p_nombre_producto_muestra VARCHAR(255),
+    IN p_condicion_muestra VARCHAR(20),
+    IN p_fecha_recepcion_muestra DATE,
+    IN p_id_lab_muestra INT,
+    IN p_condicion_transp_muestra VARCHAR(20),
+    IN p_condicion_almac_muestra VARCHAR(20),
+    IN p_temperatura_muestra DECIMAL(10,2),
+    IN p_color_muestra VARCHAR(20),
+    IN p_olor_muestra VARCHAR(20),
+    IN p_sabor_muestra VARCHAR(20),
+    IN p_aspecto_muestra VARCHAR(20),
+    IN p_textura_muestra VARCHAR(20),
+    IN p_peso_neto_muestra DECIMAL(10,2),
+    IN p_fecha_vencimiento_muestra DATE,
+    IN p_observaciones_muestra TEXT,
+    IN p_muestra_validada BOOLEAN,
+    IN p_id_usuario_registro INT
+)
+BEGIN
+    DECLARE v_abreviatura CHAR(2);
+    DECLARE v_yyyy CHAR(4);
+    DECLARE v_mm CHAR(2);
+    DECLARE v_secuencia INT;
+    DECLARE v_codigo_muestra CHAR(15);
+	DECLARE v_id_muestra_insertada INT;
+	DECLARE v_id_asignacion_insertada INT;
+    DECLARE v_id_usuario_analista INT;
+    DECLARE v_id_usuario_evaluador INT;
+	
+	IF p_operacion IN (1,2) THEN
+		IF (SELECT id_rol_usuario FROM Usuario WHERE id_usuario = p_id_solicitante_muestra) <> 5 THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado como solicitante no tiene dicho rol en el sistema.';
+		END IF;
+	END IF;
+	
+    IF p_operacion = 1 THEN
+        IF p_fecha_recepcion_muestra > CURDATE() THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La fecha de recepción no puede ser futura.';
+		
+		ELSEIF NOT EXISTS (SELECT 1 FROM Usuario WHERE id_rol_usuario = 2 AND estado_activo_usuario = TRUE)
+		OR NOT EXISTS (SELECT 1 FROM Usuario WHERE id_rol_usuario = 3 AND estado_activo_usuario = TRUE) 
+		OR NOT EXISTS (SELECT 1 FROM Usuario WHERE id_rol_usuario = 4 AND estado_activo_usuario = TRUE) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Antes de insertar una muestra debe haber activos al menos un registrador, un analista y un evaluador.';
+		
+		ELSEIF (SELECT id_rol_usuario FROM Usuario WHERE id_usuario = p_id_usuario_registro) <> 2 THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado como encargado de registro no tiene dicho rol en el sistema.';
+		END IF;
+		
+        SELECT abreviatura_tipo_muestra INTO v_abreviatura
+        FROM TipoMuestra
+        WHERE id_tipo_muestra = p_id_tipo_muestra;
+
+        SET v_yyyy = DATE_FORMAT(p_fecha_recepcion_muestra, '%Y');
+        SET v_mm = DATE_FORMAT(p_fecha_recepcion_muestra, '%m');
+
+        SELECT COUNT(*) INTO v_secuencia
+        FROM Muestra
+        WHERE id_tipo_muestra = p_id_tipo_muestra
+            AND DATE_FORMAT(fecha_recepcion_muestra, '%Y%m') = CONCAT(v_yyyy,v_mm);
+
+        SET v_secuencia = v_secuencia + 1;
+
+        SET v_codigo_muestra = CONCAT('M-', v_abreviatura, '-', v_yyyy, v_mm, '-', LPAD(v_secuencia, 3, '0'));
+
+        INSERT INTO Muestra (
+            codigo_muestra, id_solicitante_muestra, id_emp_fabricante_muestra, 
+            id_emp_distribuidor_muestra, id_tipo_muestra, nombre_producto_muestra, 
+            condicion_muestra, fecha_recepcion_muestra, id_lab_muestra, 
+            condicion_transp_muestra, condicion_almac_muestra, temperatura_muestra, 
+            color_muestra, olor_muestra, sabor_muestra, aspecto_muestra, 
+            textura_muestra, peso_neto_muestra, fecha_vencimiento_muestra, observaciones_muestra
+        )
+        VALUES (
+            v_codigo_muestra, p_id_solicitante_muestra, p_id_emp_fabricante_muestra, 
+            p_id_emp_distribuidor_muestra, p_id_tipo_muestra, p_nombre_producto_muestra, 
+            p_condicion_muestra, p_fecha_recepcion_muestra, p_id_lab_muestra, 
+            p_condicion_transp_muestra, p_condicion_almac_muestra, p_temperatura_muestra, 
+            p_color_muestra, p_olor_muestra, p_sabor_muestra, p_aspecto_muestra, 
+            p_textura_muestra, p_peso_neto_muestra, p_fecha_vencimiento_muestra, p_observaciones_muestra
+        );
+        
+		SET v_id_muestra_insertada = LAST_INSERT_ID();
+        CALL spSetAsignacion(1, NULL, p_id_usuario_registro, v_id_muestra_insertada, NULL, NULL, NULL, @v_id_asignacion_out);
+        SET v_id_asignacion_insertada = @v_id_asignacion_out;
+		CALL spSetAsignacion(2, v_id_asignacion_insertada, NULL, NULL, 'En proceso', NULL, NULL, @v_dummy);
+        CALL spGetIdUsuarioMenosCargado(2, NULL, v_id_usuario_analista);
+        CALL spSetAsignacion(1, NULL, v_id_usuario_analista, v_id_muestra_insertada, NULL, NULL, NULL, @v_dummy);
+        CALL spGetIdUsuarioMenosCargado(3, NULL, v_id_usuario_evaluador);
+        CALL spSetAsignacion(1, NULL, v_id_usuario_evaluador, v_id_muestra_insertada, NULL, NULL, NULL, @v_dummy);
+	
+    ELSEIF p_operacion = 2 THEN
+        IF p_fecha_recepcion_muestra > (SELECT fecha_creacion_muestra FROM Muestra WHERE id_muestra = p_id_muestra) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La fecha de recepción no puede ser posterior a la fecha de creación del registro.';
+		
+		ELSEIF p_muestra_validada = TRUE THEN
+			IF (SELECT estado_muestra FROM Muestra WHERE id_muestra = p_id_muestra) <> 'Evaluada' THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo se puede validar la muestra en su última fase.';
+			
+			ELSEIF EXISTS (
+				SELECT 1
+				FROM Prueba
+				WHERE id_muestra = p_id_muestra
+					AND prueba_validada = FALSE
+					AND estado_activo_prueba = TRUE
+			) THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existe al menos una prueba creada que falta por ser validada para poder validar la muestra.';
+			END IF;
+		END IF;
+
+        UPDATE Muestra
+        SET id_solicitante_muestra = p_id_solicitante_muestra,
+            id_emp_fabricante_muestra = p_id_emp_fabricante_muestra,
+            id_emp_distribuidor_muestra = p_id_emp_distribuidor_muestra,
+			nombre_producto_muestra = p_nombre_producto_muestra,
+            condicion_muestra = p_condicion_muestra,
+            fecha_recepcion_muestra = p_fecha_recepcion_muestra,
+            id_lab_muestra = p_id_lab_muestra,
+            condicion_transp_muestra = p_condicion_transp_muestra,
+            condicion_almac_muestra = p_condicion_almac_muestra,
+            temperatura_muestra = p_temperatura_muestra,
+            color_muestra = p_color_muestra,
+            olor_muestra = p_olor_muestra,
+            sabor_muestra = p_sabor_muestra,
+            aspecto_muestra = p_aspecto_muestra,
+            textura_muestra = p_textura_muestra,
+            peso_neto_muestra = p_peso_neto_muestra,
+            fecha_vencimiento_muestra = p_fecha_vencimiento_muestra,
+            observaciones_muestra = p_observaciones_muestra,
+            muestra_validada = p_muestra_validada
+        WHERE id_muestra = p_id_muestra
+            AND estado_muestra NOT IN ('Certificada', 'Descartada');
+        
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Muestra
+        SET estado_muestra = 'Descartada'
+        WHERE id_muestra = p_id_muestra
+			AND estado_muestra <> 'Certificada';
+		
+		BEGIN
+			DECLARE v_asignacion_a_cancelar INT;
+			DECLARE done INT DEFAULT 0;
+			
+			DECLARE cur CURSOR FOR
+				SELECT a.id_asignacion
+				FROM Asignacion a
+				WHERE a.id_muestra = p_id_muestra
+					AND (a.estado_asignacion IN ('Pendiente', 'En proceso')
+						OR (a.estado_asignacion = 'Finalizada'
+							AND NOT EXISTS (
+								SELECT 1
+								FROM Asignacion a2
+								WHERE a2.id_usuario = a.id_usuario
+									AND a2.id_muestra = a.id_muestra
+									AND a2.id_asignacion > a.id_asignacion)));
+			
+			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+			
+			OPEN cur;
+			read_loop: LOOP
+				FETCH cur INTO v_asignacion_a_cancelar;
+				IF done THEN
+					LEAVE read_loop;
+				END IF;
+				
+				CALL spSetAsignacion(3, v_asignacion_a_cancelar, NULL, NULL, NULL, NULL, NULL, @v_dummy);
+			END LOOP;
+			CLOSE cur;
+		END;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetAsignacion (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_asignacion INT,
+    IN p_id_usuario INT,
+    IN p_id_muestra INT,
+    IN p_estado_asignacion VARCHAR(20),
+    IN p_motivos_devolucion TEXT,
+    IN p_comentarios_a_siguiente_fase TEXT,
+	OUT p_out_id_asignacion INT
+)
+BEGIN
+    DECLARE v_fecha_limite DATETIME;
+    DECLARE v_dias_habiles INT;
+    DECLARE v_id_rol INT;
+    DECLARE v_id_usuario_actual INT;
+    DECLARE v_id_muestra_actual INT;
+    DECLARE v_numero_fase_actual INT;
+	DECLARE v_estado_actual VARCHAR(20);
+	DECLARE v_estado_muestra VARCHAR(20);
+    DECLARE v_muestra_validada BOOLEAN;
+    DECLARE v_id_usuario_nuevo INT;
+    DECLARE v_id_siguiente_asignacion INT;
+	DECLARE v_id_asignacion_insertada INT;
+	
+	SET p_out_id_asignacion = NULL;
+	SET max_sp_recursion_depth = 10;
+	
+	SELECT estado_muestra INTO v_estado_muestra
+	FROM Muestra
+	WHERE id_muestra = v_id_muestra_actual;
+	
+	IF (p_operacion IN (1,2) AND v_estado_muestra IN ('Certificada','Descartada')) OR (p_operacion = 3 AND v_estado_muestra = 'Certificada') THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se pueden crear ni modificar registros de asignaciones de las muestras ya concluidas.';
+	END IF;
+	
+    IF p_operacion IN (2,3) THEN
+		SELECT id_usuario, id_muestra, numero_fase_asignacion, estado_asignacion
+		INTO v_id_usuario_actual, v_id_muestra_actual, v_numero_fase_actual, v_estado_actual
+		FROM Asignacion
+		WHERE id_asignacion = p_id_asignacion;
+	ELSE
+		SET v_id_muestra_actual = p_id_muestra;
+	END IF;
+	
+    IF p_operacion = 1 THEN
+		SELECT id_rol_usuario INTO v_id_rol
+		FROM Usuario
+		WHERE id_usuario = p_id_usuario;
+		
+		IF v_id_rol NOT IN (2,3,4) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El rol de este usuario no trabaja con asignaciones de muestras (debe ser registrador, analista o evaluador).';
+		END IF;
+		
+		IF EXISTS (
+			SELECT 1 FROM Asignacion
+			WHERE id_muestra = p_id_muestra
+				AND numero_fase_asignacion = v_id_rol - 1
+				AND estado_asignacion IN ('Pendiente','En proceso')
+		) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ya existe una asignación activa para dicha muestra.';
+        END IF;
+			
+		INSERT INTO Asignacion (id_usuario, id_muestra, numero_fase_asignacion)
+		VALUES (p_id_usuario, p_id_muestra, v_id_rol - 1);
+        
+		SET p_out_id_asignacion = LAST_INSERT_ID();
+
+    ELSEIF p_operacion = 2 THEN
+		IF NOT ((v_estado_actual = 'Pendiente' AND p_estado_asignacion = 'En proceso') 
+				OR (v_estado_actual = 'En proceso' 
+					AND (p_estado_asignacion IN ('En proceso','Finalizada') 
+						OR (p_estado_asignacion = 'Devuelta' AND v_numero_fase_actual IN (2,3))))) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La actualización de estados de asignación no corresponde al flujo correcto del sistema.';
+		
+		ELSEIF p_estado_asignacion = 'Finalizada' AND v_numero_fase_actual = 2 THEN
+			IF EXISTS (
+				SELECT 1
+				FROM TipoPrueba tp
+				WHERE tp.estado_activo_tipo_prueba = TRUE
+				AND NOT EXISTS (
+					SELECT 1
+					FROM Prueba p
+					WHERE p.id_muestra = v_id_muestra_actual
+					  AND p.id_tipo_prueba = tp.id_tipo_prueba
+					  AND p.estado_activo_prueba = TRUE)
+			) THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede finalizar la asignación del analista porque faltan pruebas por crear.';
+			END IF;
+		
+		ELSEIF p_estado_asignacion = 'Finalizada' AND v_numero_fase_actual = 3 THEN
+			IF (SELECT muestra_validada FROM Muestra WHERE id_muestra = v_id_muestra_actual) = FALSE THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede finalizar la asignación del evaluador porque no ha validado la muestra.';
+			END IF;
+		END IF;
+		
+        IF p_estado_asignacion = 'En proceso' THEN
+			SET v_fecha_limite = NOW();
+			SET v_dias_habiles = 5;
+			WHILE v_dias_habiles > 0 DO
+				SET v_fecha_limite = DATE_ADD(v_fecha_limite, INTERVAL 1 DAY);
+				IF DAYOFWEEK(v_fecha_limite) NOT IN (1,7) THEN
+					SET v_dias_habiles = v_dias_habiles - 1;
+				END IF;
+			END WHILE;
+		END IF;
+		
+		UPDATE Asignacion
+		SET
+			estado_asignacion = p_estado_asignacion,
+			fecha_inicio_asignacion = CASE
+				WHEN p_estado_asignacion = 'En proceso' AND fecha_inicio_asignacion IS NULL THEN NOW()
+				ELSE fecha_inicio_asignacion
+			END,
+			fecha_limite_asignacion = CASE
+				WHEN p_estado_asignacion = 'En proceso' AND fecha_limite_asignacion IS NULL THEN v_fecha_limite
+				ELSE fecha_limite_asignacion
+			END,
+			fecha_fin_asignacion = CASE
+				WHEN p_estado_asignacion = 'Finalizada' THEN NOW()
+				ELSE fecha_fin_asignacion
+			END,
+			motivos_devolucion = CASE
+				WHEN p_estado_asignacion = 'Devuelta' AND numero_fase_asignacion IN (2,3) THEN p_motivos_devolucion
+				ELSE motivos_devolucion
+			END,
+			comentarios_a_siguiente_fase = CASE
+				WHEN estado_asignacion <> 'Pendiente' AND p_estado_asignacion IN ('En proceso','Finalizada') AND numero_fase_asignacion IN (1,2) THEN p_comentarios_a_siguiente_fase
+				ELSE comentarios_a_siguiente_fase
+			END
+			WHERE id_asignacion = p_id_asignacion;
+        
+        IF p_estado_asignacion IN ('Finalizada','Devuelta') THEN
+			UPDATE Muestra
+			SET estado_muestra = CASE
+				WHEN p_estado_asignacion = 'Devuelta' AND v_numero_fase_actual = 2 THEN 'Recibida'
+				WHEN (p_estado_asignacion = 'Devuelta' AND v_numero_fase_actual = 3) OR (p_estado_asignacion = 'Finalizada' AND v_numero_fase_actual = 1) THEN 'En análisis'
+				WHEN p_estado_asignacion = 'Finalizada' AND v_numero_fase_actual = 2 THEN 'Evaluada'
+				WHEN p_estado_asignacion = 'Finalizada' AND v_numero_fase_actual = 3 THEN 'Certificada'
+			END
+			WHERE id_muestra = v_id_muestra_actual;
+        END IF;
+		
+        IF p_estado_asignacion = 'Finalizada' AND v_numero_fase_actual IN (1,2) THEN
+            SELECT (
+				SELECT a.id_asignacion 
+				FROM Asignacion a
+				INNER JOIN Usuario u ON u.id_usuario = a.id_usuario
+				WHERE a.id_muestra = v_id_muestra_actual
+					AND a.numero_fase_asignacion = v_numero_fase_actual + 1
+					AND a.estado_asignacion = 'Pendiente'
+					AND u.id_rol_usuario = v_numero_fase_actual + 2
+					AND u.estado_activo_usuario = TRUE
+				ORDER BY a.id_asignacion DESC
+				LIMIT 1
+            ) INTO v_id_siguiente_asignacion;
+            
+            IF v_id_siguiente_asignacion IS NOT NULL THEN
+				CALL spSetAsignacion(2, v_id_siguiente_asignacion, NULL, NULL, 'En proceso', NULL, NULL, @v_dummy);
+				
+            ELSE
+				CALL spGetIdUsuarioMenosCargado(v_numero_fase_actual + 1, NULL, v_id_usuario_nuevo);
+                
+                IF v_id_usuario_nuevo IS NOT NULL THEN					
+					CALL spSetAsignacion(1, NULL, v_id_usuario_nuevo, v_id_muestra_actual, NULL, NULL, NULL, @v_id_asignacion_out);
+					SET v_id_asignacion_insertada = @v_id_asignacion_out;
+					CALL spSetAsignacion(2, v_id_asignacion_insertada, NULL, NULL, 'En proceso', NULL, NULL, @v_dummy);
+                ELSE
+					UPDATE Muestra
+					SET muestra_en_proceso = FALSE
+					WHERE id_muestra = v_id_muestra_actual;
+                END IF;
+            END IF;
+			
+        ELSEIF p_estado_asignacion = 'Devuelta' AND v_numero_fase_actual IN (2,3) THEN			
+			IF v_numero_fase_actual = 3 AND (SELECT muestra_validada FROM Muestra WHERE id_muestra = v_id_muestra_actual) = TRUE THEN
+				UPDATE Muestra
+				SET muestra_validada = FALSE
+				WHERE id_muestra = v_id_muestra;
+			END IF;
+			
+			SELECT (
+				SELECT a.id_usuario
+				FROM Asignacion a
+				INNER JOIN Usuario u ON u.id_usuario = a.id_usuario
+				WHERE a.id_muestra = v_id_muestra_actual
+					AND a.numero_fase_asignacion = v_numero_fase_actual - 1
+					AND a.estado_asignacion = 'Finalizada'
+					AND u.id_rol_usuario = v_numero_fase_actual
+					AND u.estado_activo_usuario = TRUE
+				ORDER BY a.id_asignacion DESC
+				LIMIT 1
+            ) INTO v_id_usuario_nuevo;
+			
+			IF v_id_usuario_nuevo IS NULL THEN
+				CALL spGetIdUsuarioMenosCargado(v_numero_fase_actual - 1, NULL, v_id_usuario_nuevo);
+			END IF;
+            
+			IF v_id_usuario_nuevo IS NOT NULL THEN
+				CALL spSetAsignacion(1, NULL, v_id_usuario_nuevo, v_id_muestra_actual, NULL, NULL, NULL, @v_id_asignacion_out);
+				SET v_id_asignacion_insertada = @v_id_asignacion_out;
+				CALL spSetAsignacion(2, v_id_asignacion_insertada, NULL, NULL, 'En proceso', NULL, NULL, @v_dummy);
+            ELSE
+				UPDATE Muestra
+				SET muestra_en_proceso = FALSE
+				WHERE id_muestra = v_id_muestra_actual;
+            END IF;
+            
+            CALL spSetAsignacion(1, NULL, v_id_usuario_actual, v_id_muestra_actual, NULL, NULL, NULL, @v_dummy);
+        END IF;
+        
+	ELSEIF p_operacion = 3 THEN
+        IF v_estado_actual NOT IN ('Finalizada y última','Cancelada','Devuelta') THEN
+			UPDATE Asignacion
+			SET estado_asignacion = CASE
+				WHEN estado_asignacion = 'Finalizada' THEN 'Finalizada y última'
+                WHEN estado_asignacion IN ('Pendiente','En proceso') THEN 'Cancelada'
+			END
+			WHERE id_asignacion = p_id_asignacion;
+			
+            IF v_estado_muestra <> 'Descartada' AND (SELECT estado_asignacion FROM Asignacion WHERE id_asignacion = p_id_asignacion) = 'Cancelada' THEN			
+				CALL spGetIdUsuarioMenosCargado(v_numero_fase_actual, v_id_usuario_actual, v_id_usuario_nuevo);
+				
+                IF v_id_usuario_nuevo IS NOT NULL THEN
+					CALL spSetAsignacion(1, NULL, v_id_usuario_nuevo, v_id_muestra_actual, NULL, NULL, NULL, @v_id_asignacion_out);
+					SET v_id_asignacion_insertada = @v_id_asignacion_out;
+                    
+                    IF v_estado_actual = 'En proceso' THEN
+						CALL spSetAsignacion(2, v_id_asignacion_insertada, NULL, NULL, 'En proceso', NULL, NULL, @v_dummy);
+                    END IF;
+                    
+				ELSEIF v_estado_actual = 'En proceso' THEN
+					UPDATE Muestra
+					SET muestra_en_proceso = FALSE
+					WHERE id_muestra = v_id_muestra_actual;
+                END IF;
+			END IF;
+		END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetTipoPrueba (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_tipo_prueba INT,
+    IN p_abreviatura_tipo_prueba CHAR(2),
+    IN p_nombre_tipo_prueba VARCHAR(255)
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO TipoPrueba (abreviatura_tipo_prueba, nombre_tipo_prueba)
+        VALUES (p_abreviatura_tipo_prueba, p_nombre_tipo_prueba);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE TipoPrueba
+        SET abreviatura_tipo_prueba = p_abreviatura_tipo_prueba,
+            nombre_tipo_prueba = p_nombre_tipo_prueba
+        WHERE id_tipo_prueba = p_id_tipo_prueba;
+    ELSEIF p_operacion = 3 THEN
+        UPDATE TipoPrueba
+        SET estado_activo_tipo_prueba = FALSE
+        WHERE id_tipo_prueba = p_id_tipo_prueba;
+    ELSEIF p_operacion = 4 THEN
+        UPDATE TipoPrueba
+        SET estado_activo_tipo_prueba = TRUE
+        WHERE id_tipo_prueba = p_id_tipo_prueba;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetPrueba (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_prueba INT,
+    IN p_id_muestra INT,
+    IN p_id_tipo_prueba INT,
+    IN p_notas_prueba TEXT,
+    IN p_prueba_validada BOOLEAN
+)
+BEGIN
+	DECLARE v_id_muestra INT;
+	DECLARE v_estado_muestra VARCHAR(20);
+	DECLARE v_id_tipo_prueba INT;
+	DECLARE v_codigo_muestra CHAR(15);
+	DECLARE v_abreviatura_tipo CHAR(2);
+    DECLARE v_codigo_prueba CHAR(20);
+    DECLARE v_secuencia INT;
+	
+	SET v_id_muestra = CASE
+		WHEN p_operacion = 1 THEN p_id_muestra
+		ELSE (SELECT id_muestra FROM Prueba WHERE id_prueba = p_id_prueba)
+	END;
+	
+	SELECT estado_muestra INTO v_estado_muestra
+	FROM Muestra
+	WHERE id_muestra = v_id_muestra;
+	
+	IF v_estado_muestra IN ('Certificada','Descartada') THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede crear ni modificar resultados de una muestra ya terminada.';
+	END IF;
+	
+	IF p_operacion IN (1,4) THEN
+		SET v_id_tipo_prueba = CASE
+			WHEN p_operacion = 1 THEN p_id_tipo_prueba
+			ELSE (SELECT id_tipo_prueba FROM Prueba WHERE id_prueba = p_id_prueba)
+		END;
+		
+		IF EXISTS (
+			SELECT 1 FROM Prueba
+			WHERE id_muestra = v_id_muestra
+				AND id_tipo_prueba = v_id_tipo_prueba
+				AND estado_activo_prueba = TRUE
+		) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ya existe una prueba activa de este tipo para esta muestra.';
+		END IF;
+	END IF;
+	
+    IF p_operacion = 1 THEN		
+		IF v_estado_muestra <> 'En análisis' THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo se puede crear una prueba en la segunda fase de su muestra.';
+		END IF;
+		
+		SELECT codigo_muestra INTO v_codigo_muestra
+		FROM Muestra
+		WHERE id_muestra = p_id_muestra;
+		
+		SELECT abreviatura_tipo_prueba INTO v_abreviatura_tipo
+		FROM TipoPrueba
+		WHERE id_tipo_prueba = p_id_tipo_prueba;
+        
+		SELECT COUNT(*) INTO v_secuencia
+        FROM Prueba
+        WHERE id_muestra = p_id_muestra
+			AND id_tipo_prueba = p_id_tipo_prueba;
+		
+        SET v_secuencia = v_secuencia + 1;
+        
+		SET v_codigo_prueba = CONCAT(v_codigo_muestra, '-', v_abreviatura_tipo, LPAD(v_secuencia, 2, '0'));
+        
+		INSERT INTO Prueba (codigo_prueba, id_muestra, id_tipo_prueba)
+		VALUES (v_codigo_prueba, p_id_muestra, p_id_tipo_prueba);
+	
+    ELSEIF p_operacion = 2 THEN
+        IF p_prueba_validada = TRUE THEN
+			IF v_estado_muestra <> 'Evaluada' THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo se puede validar la prueba en la última fase de su muestra.';
+			ELSEIF NOT EXISTS (SELECT 1 FROM Resultado WHERE id_prueba = p_id_prueba) THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Deben haber resultados creados para poder validar la prueba.';
+			END IF;
+		END IF;
+		
+		UPDATE Prueba
+        SET notas_prueba = CASE
+				WHEN v_estado_muestra = 'En análisis' THEN p_notas_prueba
+				ELSE notas_prueba
+			END,
+            prueba_validada = p_prueba_validada
+        WHERE id_prueba = p_id_prueba;
+	
+	ELSEIF p_operacion = 3 THEN
+		IF (SELECT prueba_validada FROM Prueba WHERE id_prueba = p_id_prueba) = TRUE THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede desactivar una prueba ya validada. Desvalide la prueba e intente de nuevo.';
+		END IF;
+		
+		UPDATE Prueba
+        SET estado_activo_prueba = FALSE
+        WHERE id_prueba = p_id_prueba;
+	
+	ELSEIF p_operacion = 4 THEN		
+		UPDATE Prueba
+        SET estado_activo_prueba = TRUE
+        WHERE id_prueba = p_id_prueba;
+	END IF;
+	
+	IF p_operacion IN (1,3,4) THEN
+		UPDATE Muestra
+		SET muestra_apta_para_consumo = NULL,
+			muestra_validada = FALSE
+		WHERE id_muestra = v_id_muestra
+			AND muestra_apta_para_consumo IS NOT NULL
+			AND muestra_validada = TRUE;
+	END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetParametro (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_parametro INT,
+    IN p_id_tipo_prueba INT,
+    IN p_nombre_parametro VARCHAR(255),
+	IN p_tipo_parametro VARCHAR(10),
+    IN p_descripcion_parametro TEXT,
+    IN p_unidad_medida_parametro VARCHAR(20)
+)
+BEGIN
+	DECLARE v_abreviatura_tipo CHAR(2);
+    DECLARE v_secuencia INT;
+    DECLARE v_codigo_parametro CHAR(7);
+    DECLARE v_resultados_creados INT;
+	DECLARE v_tipo VARCHAR(10);
+    DECLARE v_unidad_medida VARCHAR(20);
+    
+    IF p_operacion = 1 THEN
+		SELECT abreviatura_tipo_prueba 
+        INTO v_abreviatura_tipo
+        FROM TipoPrueba
+        WHERE id_tipo_prueba = p_id_tipo_prueba;
+        
+		SELECT IFNULL(MAX(CONVERT(SUBSTRING(codigo_parametro, 6, 2), UNSIGNED)), 0) + 1
+        INTO v_secuencia
+        FROM Parametro
+        WHERE id_tipo_prueba = p_id_tipo_prueba;
+        
+        SET v_codigo_parametro = CONCAT('P-', v_abreviatura_tipo, '-', LPAD(v_secuencia, 2, '0'));
+    
+        INSERT INTO Parametro (codigo_parametro, id_tipo_prueba, nombre_parametro, tipo_parametro, descripcion_parametro, unidad_medida_parametro)
+        VALUES (v_codigo_parametro, p_id_tipo_prueba, p_nombre_parametro, p_tipo_parametro, p_descripcion_parametro, p_unidad_medida_parametro);
+        
+    ELSEIF p_operacion = 2 THEN
+		SELECT tipo_parametro, unidad_medida_parametro
+		INTO v_tipo, v_unidad_medida
+        FROM Parametro
+		WHERE id_parametro = p_id_parametro;
+        
+        IF v_tipo <> p_tipo_parametro OR v_unidad_medida <> p_unidad_medida_parametro THEN
+			IF EXISTS (SELECT 1 FROM Resultado WHERE id_parametro = p_id_parametro) THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No es posible editar el tipo ni la unidad de medida si ya existen resultados del parámetro.';
+			END IF;
+        END IF;
+        
+        UPDATE Parametro
+        SET nombre_parametro = p_nombre_parametro,
+			tipo_parametro = p_tipo_parametro,
+            descripcion_parametro = p_descripcion_parametro,
+            unidad_medida_parametro = p_unidad_medida_parametro
+        WHERE id_parametro = p_id_parametro;
+        
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Parametro
+        SET usar_parametro_en_pruebas = FALSE
+        WHERE id_parametro = p_id_parametro;
+        
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Parametro
+        SET usar_parametro_en_pruebas = TRUE
+        WHERE id_parametro = p_id_parametro;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetResultado (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_prueba INT,
+    IN p_id_parametro INT,
+    IN p_resultado_numerico DECIMAL(10,2),
+    IN p_resultado_texto VARCHAR(255),
+    IN p_observaciones_resultado TEXT
+)
+BEGIN    
+	DECLARE v_id_muestra INT;
+    DECLARE v_dentro_limites BOOLEAN;
+	
+	SELECT id_muestra INTO v_id_muestra
+    FROM Prueba
+    WHERE id_prueba = p_id_prueba;
+	
+	IF (SELECT estado_muestra FROM Muestra WHERE id_muestra = v_id_muestra) IN ('Certificada','Descartada') THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede crear ni modificar resultados de una muestra ya terminada.';
+    ELSEIF (p_resultado_numerico IS NOT NULL AND p_resultado_texto IS NOT NULL) OR (p_resultado_numerico IS NULL AND p_resultado_texto IS NULL) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Debe proporcionar solo resultado_numerico o resultado_texto, nunca ambos ni ninguno.';
+    END IF;
+	
+	SET v_dentro_limites = TRUE;
+	
+	IF p_resultado_texto IS NOT NULL AND p_resultado_texto LIKE '%NO - %' THEN
+		SET v_dentro_limites = FALSE;
+	
+	ELSEIF p_resultado_numerico IS NOT NULL THEN
+		BEGIN
+			DECLARE v_valor_min DECIMAL(10,2);
+			DECLARE v_valor_max DECIMAL(10,2);
+			DECLARE done INT DEFAULT 0;
+			
+			DECLARE cur CURSOR FOR
+				SELECT valor_min_limite_parametro, valor_max_limite_parametro
+				FROM LimitesDeConfianza
+				WHERE id_parametro = p_id_parametro AND usar_limites_en_pruebas = TRUE;
+			
+			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+			
+			OPEN cur;
+			read_loop: LOOP
+				FETCH cur INTO v_valor_min, v_valor_max;
+				IF done THEN
+					LEAVE read_loop;
+				END IF;
+
+				IF (v_valor_min IS NOT NULL AND p_resultado_numerico < v_valor_min)
+				  OR (v_valor_max IS NOT NULL AND p_resultado_numerico > v_valor_max) THEN
+					SET v_dentro_limites = FALSE;
+				END IF;
+				
+				IF v_dentro_limites = FALSE THEN
+					LEAVE read_loop;
+				END IF;
+			END LOOP;
+			CLOSE cur;
+		END;
+	END IF;
+    
+    IF p_operacion = 1 THEN
+        INSERT INTO Resultado (id_prueba, id_parametro, resultado_numerico, resultado_texto, observaciones_resultado, resultado_dentro_de_limites)
+        VALUES (p_id_prueba, p_id_parametro, p_resultado_numerico, p_resultado_texto, p_observaciones_resultado, v_dentro_limites);
+		
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Resultado
+        SET resultado_numerico = p_resultado_numerico,
+            resultado_texto = p_resultado_texto,
+            observaciones_resultado = p_observaciones_resultado,
+            resultado_dentro_de_limites = v_dentro_limites
+        WHERE id_prueba = p_id_prueba AND id_parametro = p_id_parametro;
+		
+		IF (SELECT prueba_validada FROM Prueba WHERE id_prueba = p_id_prueba) = TRUE THEN
+			UPDATE Prueba
+			SET prueba_validada = FALSE
+			WHERE id_prueba = p_id_prueba;
+			
+			IF (SELECT muestra_validada FROM Muestra WHERE id_muestra = v_id_muestra) = TRUE THEN
+				UPDATE Muestra
+				SET muestra_validada = FALSE
+				WHERE id_muestra = v_id_muestra;
+			END IF;
+		END IF;
+    END IF;
+	
+	IF NOT EXISTS (
+		SELECT 1
+		FROM Parametro pa
+		WHERE pa.id_tipo_prueba = (SELECT id_tipo_prueba FROM Prueba WHERE id_prueba = p_id_prueba)
+			AND EXISTS (
+				SELECT 1
+				FROM ParametroDeTipoMuestra patm
+				WHERE id_tipo_muestra = (
+										 SELECT m.id_tipo_muestra
+										 FROM Prueba p
+										 INNER JOIN Muestra m ON m.id_muestra = p.id_muestra
+										 WHERE p.id_prueba = p_id_prueba))
+			AND pa.usar_parametro_en_pruebas = TRUE
+			AND NOT EXISTS (
+				SELECT 1 
+				FROM Resultado r
+				WHERE r.id_prueba = p_id_prueba
+					AND r.id_parametro = pa.id_parametro)
+	) THEN
+		BEGIN
+			DECLARE v_resultado_positivo BOOLEAN;
+			DECLARE v_prueba_aprobada BOOLEAN;
+			DECLARE v_aprobacion_prueba_actual BOOLEAN;
+			DECLARE done INT DEFAULT 0;
+			
+			DECLARE cur CURSOR FOR
+				SELECT resultado_dentro_de_limites
+				FROM Resultado
+				WHERE id_prueba = p_id_prueba;
+			
+			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+			
+			SET v_prueba_aprobada = TRUE;
+			OPEN cur;
+			read_loop: LOOP
+				FETCH cur INTO v_resultado_positivo;
+				IF done THEN
+					LEAVE read_loop;
+				END IF;
+
+				IF v_resultado_positivo = FALSE THEN
+					SET v_prueba_aprobada = FALSE;
+				END IF;
+					
+				IF v_prueba_aprobada = FALSE THEN
+					LEAVE read_loop;
+				END IF;
+			END LOOP;
+			CLOSE cur;
+		
+			SELECT prueba_aprobada INTO v_aprobacion_prueba_actual
+			FROM Prueba
+			WHERE id_prueba = p_id_prueba;
+			
+			IF NOT (v_aprobacion_prueba_actual <=> v_prueba_aprobada) THEN
+				UPDATE Prueba
+				SET prueba_aprobada = v_prueba_aprobada
+				WHERE id_prueba = p_id_prueba;
+				
+				IF NOT EXISTS (
+					SELECT 1
+					FROM Prueba
+					WHERE id_muestra = v_id_muestra
+						AND prueba_aprobada IS NULL
+						AND estado_activo_prueba = TRUE
+				) THEN
+					BEGIN
+						DECLARE v_prueba_positiva BOOLEAN;
+						DECLARE v_muestra_aprobada BOOLEAN;
+						DECLARE v_aprobacion_muestra_actual BOOLEAN;
+						DECLARE done INT DEFAULT 0;
+						
+						DECLARE cur CURSOR FOR
+							SELECT prueba_aprobada
+							FROM Prueba
+							WHERE id_muestra = v_id_muestra;
+						
+						DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+						
+						SET v_muestra_aprobada = TRUE;
+						OPEN cur;
+						read_loop: LOOP
+							FETCH cur INTO v_prueba_positiva;
+							IF done THEN
+								LEAVE read_loop;
+							END IF;
+
+							IF v_prueba_positiva = FALSE THEN
+								SET v_muestra_aprobada = FALSE;
+							END IF;
+								
+							IF v_muestra_aprobada = FALSE THEN
+								LEAVE read_loop;
+							END IF;
+						END LOOP;
+						CLOSE cur;
+					
+						SELECT muestra_apta_para_consumo INTO v_aprobacion_muestra_actual
+						FROM Muestra
+						WHERE id_muestra = v_id_muestra;
+						
+						IF NOT (v_aprobacion_muestra_actual <=> v_muestra_aprobada) THEN
+							UPDATE Muestra
+							SET muestra_apta_para_consumo = v_muestra_aprobada
+							WHERE id_muestra = v_id_muestra;
+						END IF;
+					END;
+				END IF;
+			END IF;
+		END;
+	END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetColeccionNormas (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_coleccion_normas INT,
+    IN p_sigla_coleccion_normas VARCHAR(10),
+    IN p_nombre_coleccion_normas VARCHAR(255)
+)
+BEGIN
+    DECLARE v_sigla_antigua VARCHAR(10);
+    
+    IF p_operacion = 1 THEN
+        INSERT INTO ColeccionNormas (sigla_coleccion_normas, nombre_coleccion_normas)
+        VALUES (p_sigla_coleccion_normas, p_nombre_coleccion_normas);
+	
+    ELSEIF p_operacion = 2 THEN
+		SELECT sigla_coleccion_normas
+		INTO v_sigla_antigua
+		FROM ColeccionNormas
+		WHERE id_coleccion_normas = p_id_coleccion_normas;
+        
+        UPDATE ColeccionNormas
+        SET sigla_coleccion_normas = p_sigla_coleccion_normas,
+            nombre_coleccion_normas = p_nombre_coleccion_normas
+        WHERE id_coleccion_normas = p_id_coleccion_normas;
+        
+		IF v_sigla_antigua <> p_sigla_coleccion_normas THEN
+            UPDATE Norma
+			SET codigo_norma = CONCAT('N-', REPLACE(p_sigla_coleccion_normas, ' ', '-'), '-', REPLACE(numero_norma, ' ', '-'), '-', anio_norma)
+			WHERE id_coleccion_normas = p_id_coleccion_normas;
+		END IF;
+	
+    ELSEIF p_operacion = 3 THEN
+        UPDATE ColeccionNormas
+        SET estado_activo_coleccion = FALSE
+        WHERE id_coleccion_normas = p_id_coleccion_normas;
+	
+    ELSEIF p_operacion = 4 THEN
+        UPDATE ColeccionNormas
+        SET estado_activo_coleccion = TRUE
+        WHERE id_coleccion_normas = p_id_coleccion_normas;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetNorma (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_norma INT,
+    IN p_id_coleccion_normas INT,
+    IN p_numero_norma VARCHAR(50),
+    IN p_titulo_norma VARCHAR(255),
+    IN p_descripcion_norma TEXT,
+    IN p_anio_norma YEAR,
+    IN p_referencia_acceso_norma TEXT
+)
+BEGIN
+	DECLARE v_sigla_coleccion VARCHAR(10);
+    DECLARE v_numero_norma_formateado VARCHAR(50);
+    DECLARE v_codigo_norma VARCHAR(60);
+	
+    SELECT sigla_coleccion_normas
+    INTO v_sigla_coleccion
+    FROM ColeccionNormas
+    WHERE id_coleccion_normas = p_id_coleccion_normas;
+    
+    SET v_sigla_coleccion = REPLACE(v_sigla_coleccion, ' ', '-');
+    SET v_numero_norma_formateado = REPLACE(p_numero_norma, ' ', '-');
+    SET v_codigo_norma = CONCAT('N-', v_sigla_coleccion, '-', v_numero_norma_formateado, '-', p_anio_norma);
+	
+    IF p_operacion = 1 THEN
+        INSERT INTO Norma (codigo_norma, id_coleccion_normas, numero_norma, titulo_norma, descripcion_norma, anio_norma, referencia_acceso_norma)
+        VALUES (v_codigo_norma, p_id_coleccion_normas, p_numero_norma, p_titulo_norma, p_descripcion_norma, p_anio_norma, p_referencia_acceso_norma);
+
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Norma
+        SET codigo_norma = v_codigo_norma,
+            id_coleccion_normas = p_id_coleccion_normas,
+            numero_norma = p_numero_norma,
+            titulo_norma = p_titulo_norma,
+            descripcion_norma = p_descripcion_norma,
+            anio_norma = p_anio_norma,
+            referencia_acceso_norma = p_referencia_acceso_norma
+        WHERE id_norma = p_id_norma;
+
+    ELSEIF p_operacion = 3 THEN
+        UPDATE Norma
+        SET estado_activo_norma = FALSE
+        WHERE id_norma = p_id_norma;
+
+    ELSEIF p_operacion = 4 THEN
+        UPDATE Norma
+        SET estado_activo_norma = TRUE
+        WHERE id_norma = p_id_norma;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetLimitesDeConfianza (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_parametro INT,
+    IN p_id_norma INT,
+    IN p_valor_min_limite_parametro DECIMAL(10,2),
+    IN p_valor_max_limite_parametro DECIMAL(10,2),
+    IN p_valor_texto_limite_parametro VARCHAR(255)
+)
+BEGIN
+	IF p_operacion IN (1,2) THEN
+		IF NOT (
+			((p_valor_min_limite_parametro IS NOT NULL OR p_valor_max_limite_parametro IS NOT NULL) AND p_valor_texto_limite_parametro IS NULL) OR
+			((p_valor_min_limite_parametro IS NULL AND p_valor_max_limite_parametro IS NULL) AND p_valor_texto_limite_parametro IS NOT NULL)
+		) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Debe proporcionar solo límites numéricos o un límite en texto, nunca ambos ni ninguno.';
+		END IF;
+	END IF;
+    
+    IF p_operacion = 1 THEN
+        INSERT INTO LimitesDeConfianza (id_parametro, id_norma, valor_min_limite_parametro, valor_max_limite_parametro, valor_texto_limite_parametro)
+        VALUES (p_id_parametro, p_id_norma, p_valor_min_limite_parametro, p_valor_max_limite_parametro, p_valor_texto_limite_parametro);
+	
+    ELSEIF p_operacion = 2 THEN
+        IF EXISTS (SELECT 1 FROM Resultado WHERE id_parametro = p_id_parametro) THEN
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No es posible editar los valores del límite si ya existen resultados del parámetro.';
+		END IF;
+		
+		UPDATE LimitesDeConfianza
+        SET valor_min_limite_parametro = p_valor_min_limite_parametro,
+            valor_max_limite_parametro = p_valor_max_limite_parametro,
+            valor_texto_limite_parametro = p_valor_texto_limite_parametro
+        WHERE id_parametro = p_id_parametro AND id_norma = p_id_norma;
+	
+    ELSEIF p_operacion = 3 THEN
+        UPDATE LimitesDeConfianza
+        SET usar_limites_en_pruebas = FALSE
+        WHERE id_parametro = p_id_parametro AND id_norma = p_id_norma;
+	
+    ELSEIF p_operacion = 4 THEN
+        UPDATE LimitesDeConfianza
+        SET usar_limites_en_pruebas = TRUE
+        WHERE id_parametro = p_id_parametro AND id_norma = p_id_norma;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetParametroDeTipoMuestra (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_tipo_muestra INT,
+    IN p_id_parametro INT
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO ParametroDeTipoMuestra (id_tipo_muestra, id_parametro)
+        VALUES (p_id_tipo_muestra, p_id_parametro);
+    ELSEIF p_operacion = 3 THEN
+        DELETE FROM ParametroDeTipoMuestra
+        WHERE id_tipo_muestra = p_id_tipo_muestra AND id_parametro = p_id_parametro;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetLogAcciones (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_asignacion INT,
+    IN p_descripcion_accion TEXT
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO LogAcciones (id_asignacion, descripcion_accion)
+        VALUES (p_id_asignacion, p_descripcion_accion);
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetLogEventosSistema (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_usuario INT,
+    IN p_descripcion_evento TEXT,
+    IN p_ip_origen_evento VARCHAR(50)
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO LogEventosSistema (id_usuario, descripcion_evento, ip_origen_evento)
+        VALUES (p_id_usuario, p_descripcion_evento, p_ip_origen_evento);
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetNotificacion (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_notificacion INT,
+    IN p_id_asignacion INT,
+    IN p_tipo_notificacion VARCHAR(20),
+    IN p_medio_notificacion VARCHAR(20),
+    IN p_estado_envio_notificacion VARCHAR(20)
+)
+BEGIN
+    IF p_operacion = 1 THEN
+        INSERT INTO Notificacion (id_asignacion, tipo_notificacion, medio_notificacion)
+        VALUES (p_id_asignacion, p_tipo_notificacion, p_medio_notificacion);
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Notificacion
+        SET estado_envio_notificacion = p_estado_envio_notificacion
+        WHERE id_notificacion = p_id_notificacion
+			AND estado_envio_notificacion NOT IN ('Enviada', 'Fallida');
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE spSetDocumento (
+    IN p_operacion TINYINT UNSIGNED,
+    IN p_id_documento INT,
+    IN p_id_muestra INT,
+    IN p_tipo_documento VARCHAR(20),
+    IN p_ruta_archivo_documento VARCHAR(255),
+    IN p_id_usuario_emisor INT
+)
+BEGIN
+	DECLARE v_numero_version INT;
+	
+	SELECT COALESCE(MAX(numero_version_documento), 0) + 1
+	INTO v_numero_version
+	FROM Documento
+	WHERE id_muestra = p_id_muestra AND tipo_documento = p_tipo_documento;
+	
+    IF p_operacion = 1 THEN
+        INSERT INTO Documento (id_muestra, tipo_documento, ruta_archivo_documento, numero_version_documento, id_usuario_emisor)
+        VALUES (p_id_muestra, p_tipo_documento, p_ruta_archivo_documento, v_numero_version, p_id_usuario_emisor);
+	
+    ELSEIF p_operacion = 2 THEN
+        UPDATE Documento
+        SET ruta_archivo_documento = p_ruta_archivo_documento
+        WHERE id_documento = p_id_documento;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- EXTRA stuff THAT SP's USE
+DELIMITER $$
+
+CREATE PROCEDURE spGetIdUsuarioMenosCargado (
+    IN p_fase_usuario INT,
+	IN p_id_usuario_excluido INT,
+    OUT p_id_usuario INT
+)
+BEGIN
+    IF p_fase_usuario IS NULL OR p_fase_usuario <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El ID del rol del usuario es inválido.';
+    END IF;
+    
+    SELECT (
+        SELECT u.id_usuario
+        FROM Usuario u
+        LEFT JOIN Asignacion a
+            ON a.id_usuario = u.id_usuario
+            AND a.estado_asignacion IN ('Pendiente', 'En proceso')
+        WHERE u.estado_activo_usuario = TRUE
+          AND u.id_rol_usuario = p_fase_usuario + 1
+		  AND (p_id_usuario_excluido IS NULL OR u.id_usuario <> p_id_usuario_excluido)
+        GROUP BY u.id_usuario
+        HAVING COUNT(a.id_asignacion) = (
+            SELECT MIN(cnt)
+            FROM (
+                SELECT COUNT(a2.id_asignacion) AS cnt
+                FROM Usuario u2
+                LEFT JOIN Asignacion a2
+                    ON a2.id_usuario = u2.id_usuario
+                    AND a2.estado_asignacion IN ('Pendiente', 'En proceso')
+                WHERE u2.estado_activo_usuario = TRUE
+                  AND u2.id_rol_usuario = p_fase_usuario + 1
+				  AND (p_id_usuario_excluido IS NULL OR u.id_usuario <> p_id_usuario_excluido)
+                GROUP BY u2.id_usuario
+            ) AS sub
+        )
+        ORDER BY RAND()
+        LIMIT 1
+    ) INTO p_id_usuario;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE FUNCTION fnEmailValidation(
+	p_email VARCHAR(255)
+)
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE local_part VARCHAR(64);
+    DECLARE domain_part VARCHAR(255);
+    DECLARE last_dot INT;
+    DECLARE label VARCHAR(64);
+    DECLARE pos INT;
+    DECLARE next_dot INT;
+    
+    IF LENGTH(p_email) > 254 OR LOCATE('@', p_email) = 0 OR p_email LIKE '%@%@%' OR p_email IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    SET local_part = SUBSTRING_INDEX(p_email, '@', 1);
+    SET domain_part = SUBSTRING_INDEX(p_email, '@', -1);
+
+    IF LENGTH(local_part) = 0 OR LENGTH(local_part) > 64 
+       OR local_part NOT REGEXP '^[A-Za-z0-9!#$%&''*+/=?^_`{|}~.-]+$' 
+       OR local_part LIKE '.%' OR local_part LIKE '%.' 
+       OR local_part LIKE '%..%' OR domain_part NOT LIKE '%.%' 
+       OR LENGTH(domain_part) = 0 OR LENGTH(domain_part) > 253 THEN
+		RETURN FALSE;
+    END IF;
+    
+    SET pos = 1;
+    WHILE pos > 0 DO
+        SET next_dot = LOCATE('.', domain_part, pos);
+        IF next_dot = 0 THEN
+            SET label = SUBSTRING(domain_part, pos);
+            SET pos = 0;
+        ELSE
+            SET label = SUBSTRING(domain_part, pos, next_dot - pos);
+            SET pos = next_dot + 1;
+        END IF;
+
+        IF LENGTH(label) = 0 OR LENGTH(label) > 63 
+           OR label NOT REGEXP '^[A-Za-z0-9-]+$' 
+           OR label LIKE '-%' OR label LIKE '%-' THEN
+			RETURN FALSE;
+        END IF;
+    END WHILE;
+    
+    SET last_dot = LENGTH(domain_part) - LOCATE('.', REVERSE(domain_part)) + 1;
+    SET label = SUBSTRING(domain_part, last_dot + 1);
+
+    IF LENGTH(label) < 2 OR LENGTH(label) > 63 
+       OR label NOT REGEXP '^[A-Za-z]+$' THEN
+		RETURN FALSE;
+    END IF;
+
+    RETURN TRUE;
+END$$
+
+DELIMITER ;
+
+-- INS€RT$
+CALL spSetProvincia(1, NULL, 'Azua');
+CALL spSetProvincia(1, NULL, 'Baoruco');
+CALL spSetProvincia(1, NULL, 'Barahona');
+CALL spSetProvincia(1, NULL, 'Dajabón');
+CALL spSetProvincia(1, NULL, 'Distrito Nacional');
+CALL spSetProvincia(1, NULL, 'Duarte');
+CALL spSetProvincia(1, NULL, 'El Seibo');
+CALL spSetProvincia(1, NULL, 'Elías Piña');
+CALL spSetProvincia(1, NULL, 'Espaillat');
+CALL spSetProvincia(1, NULL, 'Hato Mayor');
+CALL spSetProvincia(1, NULL, 'Hermanas Mirabal');
+CALL spSetProvincia(1, NULL, 'Independencia');
+CALL spSetProvincia(1, NULL, 'La Altagracia');
+CALL spSetProvincia(1, NULL, 'La Romana');
+CALL spSetProvincia(1, NULL, 'La Vega');
+CALL spSetProvincia(1, NULL, 'María Trinidad Sánchez');
+CALL spSetProvincia(1, NULL, 'Monseñor Nouel');
+CALL spSetProvincia(1, NULL, 'Monte Cristi');
+CALL spSetProvincia(1, NULL, 'Monte Plata');
+CALL spSetProvincia(1, NULL, 'Pedernales');
+CALL spSetProvincia(1, NULL, 'Peravia');
+CALL spSetProvincia(1, NULL, 'Puerto Plata');
+CALL spSetProvincia(1, NULL, 'Samaná');
+CALL spSetProvincia(1, NULL, 'San Cristóbal');
+CALL spSetProvincia(1, NULL, 'San José de Ocoa');
+CALL spSetProvincia(1, NULL, 'San Juan');
+CALL spSetProvincia(1, NULL, 'San Pedro de Macorís');
+CALL spSetProvincia(1, NULL, 'Sanchez Ramírez');
+CALL spSetProvincia(1, NULL, 'Santiago');
+CALL spSetProvincia(1, NULL, 'Santiago Rodríguez');
+CALL spSetProvincia(1, NULL, 'Santo Domingo');
+CALL spSetProvincia(1, NULL, 'Valverde');
+
+CALL spSetMunicipio(1, NULL, 'Azua', 1);
+CALL spSetMunicipio(1, NULL, 'Estebanía', 1);
+CALL spSetMunicipio(1, NULL, 'Guayabal', 1);
+CALL spSetMunicipio(1, NULL, 'Las Charcas', 1);
+CALL spSetMunicipio(1, NULL, 'Las Yayas de Viajama', 1);
+CALL spSetMunicipio(1, NULL, 'Padre las Casas', 1);
+CALL spSetMunicipio(1, NULL, 'Peralta', 1);
+CALL spSetMunicipio(1, NULL, 'Pueblo Viejo', 1);
+CALL spSetMunicipio(1, NULL, 'Sabana Yegua', 1);
+CALL spSetMunicipio(1, NULL, 'Tábara Arriba', 1);
+CALL spSetMunicipio(1, NULL, 'Galván', 2);
+CALL spSetMunicipio(1, NULL, 'Los Ríos', 2);
+CALL spSetMunicipio(1, NULL, 'Neiba', 2);
+CALL spSetMunicipio(1, NULL, 'Tamayo', 2);
+CALL spSetMunicipio(1, NULL, 'Villa Jaragua', 2);
+CALL spSetMunicipio(1, NULL, 'Barahona', 3);
+CALL spSetMunicipio(1, NULL, 'Cabral', 3);
+CALL spSetMunicipio(1, NULL, 'El Peñón', 3);
+CALL spSetMunicipio(1, NULL, 'Enriquillo', 3);
+CALL spSetMunicipio(1, NULL, 'Fundación', 3);
+CALL spSetMunicipio(1, NULL, 'Jaquimeyes', 3);
+CALL spSetMunicipio(1, NULL, 'La Ciénaga', 3);
+CALL spSetMunicipio(1, NULL, 'Las Salinas', 3);
+CALL spSetMunicipio(1, NULL, 'Paraíso', 3);
+CALL spSetMunicipio(1, NULL, 'Polo', 3);
+CALL spSetMunicipio(1, NULL, 'Vicente Noble', 3);
+CALL spSetMunicipio(1, NULL, 'Dajabón', 4);
+CALL spSetMunicipio(1, NULL, 'El Pino', 4);
+CALL spSetMunicipio(1, NULL, 'Loma de Cabrera', 4);
+CALL spSetMunicipio(1, NULL, 'Partido', 4);
+CALL spSetMunicipio(1, NULL, 'Restauración', 4);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo de Guzmán', 5);
+CALL spSetMunicipio(1, NULL, 'Arenoso', 6);
+CALL spSetMunicipio(1, NULL, 'Castillo', 6);
+CALL spSetMunicipio(1, NULL, 'Eugenio María de Hostos', 6);
+CALL spSetMunicipio(1, NULL, 'Las Guáranas', 6);
+CALL spSetMunicipio(1, NULL, 'Pimentel', 6);
+CALL spSetMunicipio(1, NULL, 'San Francisco de Macorís', 6);
+CALL spSetMunicipio(1, NULL, 'Villa Riva', 6);
+CALL spSetMunicipio(1, NULL, 'El Seibo', 7);
+CALL spSetMunicipio(1, NULL, 'Miches', 7);
+CALL spSetMunicipio(1, NULL, 'Bánica', 8);
+CALL spSetMunicipio(1, NULL, 'Comendador', 8);
+CALL spSetMunicipio(1, NULL, 'El Llano', 8);
+CALL spSetMunicipio(1, NULL, 'Hondo Valle', 8);
+CALL spSetMunicipio(1, NULL, 'Juan Santiago', 8);
+CALL spSetMunicipio(1, NULL, 'Pedro Santana', 8);
+CALL spSetMunicipio(1, NULL, 'Cayetano Germosén', 9);
+CALL spSetMunicipio(1, NULL, 'Gaspar Hernández', 9);
+CALL spSetMunicipio(1, NULL, 'Jamao al Norte', 9);
+CALL spSetMunicipio(1, NULL, 'Moca', 9);
+CALL spSetMunicipio(1, NULL, 'San Víctor', 9);
+CALL spSetMunicipio(1, NULL, 'El Valle', 10);
+CALL spSetMunicipio(1, NULL, 'Hato Mayor', 10);
+CALL spSetMunicipio(1, NULL, 'Sabana de la Mar', 10);
+CALL spSetMunicipio(1, NULL, 'Salcedo', 11);
+CALL spSetMunicipio(1, NULL, 'Tenares', 11);
+CALL spSetMunicipio(1, NULL, 'Villa Tapia', 11);
+CALL spSetMunicipio(1, NULL, 'Cristóbal', 12);
+CALL spSetMunicipio(1, NULL, 'Duvergé', 12);
+CALL spSetMunicipio(1, NULL, 'Jimaní', 12);
+CALL spSetMunicipio(1, NULL, 'La Descubierta', 12);
+CALL spSetMunicipio(1, NULL, 'Mella', 12);
+CALL spSetMunicipio(1, NULL, 'Postrer Río', 12);
+CALL spSetMunicipio(1, NULL, 'Higüey', 13);
+CALL spSetMunicipio(1, NULL, 'San Rafael del Yuma', 13);
+CALL spSetMunicipio(1, NULL, 'Guaymate', 14);
+CALL spSetMunicipio(1, NULL, 'La Romana', 14);
+CALL spSetMunicipio(1, NULL, 'Villa Hermosa', 14);
+CALL spSetMunicipio(1, NULL, 'Constanza', 15);
+CALL spSetMunicipio(1, NULL, 'Jarabacoa', 15);
+CALL spSetMunicipio(1, NULL, 'Jima Abajo', 15);
+CALL spSetMunicipio(1, NULL, 'La Vega', 15);
+CALL spSetMunicipio(1, NULL, 'Cabrera', 16);
+CALL spSetMunicipio(1, NULL, 'El Factor', 16);
+CALL spSetMunicipio(1, NULL, 'Nagua', 16);
+CALL spSetMunicipio(1, NULL, 'Río San Juan', 16);
+CALL spSetMunicipio(1, NULL, 'Bonao', 17);
+CALL spSetMunicipio(1, NULL, 'Maimón', 17);
+CALL spSetMunicipio(1, NULL, 'Piedra Blanca', 17);
+CALL spSetMunicipio(1, NULL, 'Castañuelas', 18);
+CALL spSetMunicipio(1, NULL, 'Guayubín', 18);
+CALL spSetMunicipio(1, NULL, 'Las Matas de Santa Cruz', 18);
+CALL spSetMunicipio(1, NULL, 'Monte Cristi', 18);
+CALL spSetMunicipio(1, NULL, 'Pepillo Salcedo', 18);
+CALL spSetMunicipio(1, NULL, 'Villa Vásquez', 18);
+CALL spSetMunicipio(1, NULL, 'Bayaguana', 19);
+CALL spSetMunicipio(1, NULL, 'Monte Plata', 19);
+CALL spSetMunicipio(1, NULL, 'Peralvillo', 19);
+CALL spSetMunicipio(1, NULL, 'Sabana Grande de Boyá', 19);
+CALL spSetMunicipio(1, NULL, 'Yamasá', 19);
+CALL spSetMunicipio(1, NULL, 'Oviedo', 20);
+CALL spSetMunicipio(1, NULL, 'Pedernales', 20);
+CALL spSetMunicipio(1, NULL, 'Baní', 21);
+CALL spSetMunicipio(1, NULL, 'Matanzas', 21);
+CALL spSetMunicipio(1, NULL, 'Nizao', 21);
+CALL spSetMunicipio(1, NULL, 'Altamira', 22);
+CALL spSetMunicipio(1, NULL, 'Guananico', 22);
+CALL spSetMunicipio(1, NULL, 'Imbert', 22);
+CALL spSetMunicipio(1, NULL, 'Los Hidalgos', 22);
+CALL spSetMunicipio(1, NULL, 'Luperón', 22);
+CALL spSetMunicipio(1, NULL, 'Puerto Plata', 22);
+CALL spSetMunicipio(1, NULL, 'Sosúa', 22);
+CALL spSetMunicipio(1, NULL, 'Villa Isabela', 22);
+CALL spSetMunicipio(1, NULL, 'Villa Montellano', 22);
+CALL spSetMunicipio(1, NULL, 'Las Terrenas', 23);
+CALL spSetMunicipio(1, NULL, 'Samaná', 23);
+CALL spSetMunicipio(1, NULL, 'Sánchez', 23);
+CALL spSetMunicipio(1, NULL, 'Bajos de Haina', 24);
+CALL spSetMunicipio(1, NULL, 'Cambita Garabitos', 24);
+CALL spSetMunicipio(1, NULL, 'Los Cacaos', 24);
+CALL spSetMunicipio(1, NULL, 'Sabana Grande de Palenque', 24);
+CALL spSetMunicipio(1, NULL, 'San Cristóbal', 24);
+CALL spSetMunicipio(1, NULL, 'San Gregorio de Nigua', 24);
+CALL spSetMunicipio(1, NULL, 'Villa Altagracia', 24);
+CALL spSetMunicipio(1, NULL, 'Yaguate', 24);
+CALL spSetMunicipio(1, NULL, 'Rancho Arriba', 25);
+CALL spSetMunicipio(1, NULL, 'Sabana Larga', 25);
+CALL spSetMunicipio(1, NULL, 'San José de Ocoa', 25);
+CALL spSetMunicipio(1, NULL, 'Bohechío', 26);
+CALL spSetMunicipio(1, NULL, 'El Cercado', 26);
+CALL spSetMunicipio(1, NULL, 'Juan de Herrera', 26);
+CALL spSetMunicipio(1, NULL, 'Las Matas de Farfán', 26);
+CALL spSetMunicipio(1, NULL, 'San Juan', 26);
+CALL spSetMunicipio(1, NULL, 'Vallejuelo', 26);
+CALL spSetMunicipio(1, NULL, 'Consuelo', 27);
+CALL spSetMunicipio(1, NULL, 'Guayacanes', 27);
+CALL spSetMunicipio(1, NULL, 'Los Llanos', 27);
+CALL spSetMunicipio(1, NULL, 'Quisqueya', 27);
+CALL spSetMunicipio(1, NULL, 'Ramón Santana', 27);
+CALL spSetMunicipio(1, NULL, 'San Pedro de Macorís', 27);
+CALL spSetMunicipio(1, NULL, 'Cevicos', 28);
+CALL spSetMunicipio(1, NULL, 'Cotuí', 28);
+CALL spSetMunicipio(1, NULL, 'Fantino', 28);
+CALL spSetMunicipio(1, NULL, 'Villa la Mata', 28);
+CALL spSetMunicipio(1, NULL, 'Baitoa', 29);
+CALL spSetMunicipio(1, NULL, 'Bisonó', 29);
+CALL spSetMunicipio(1, NULL, 'Jánico', 29);
+CALL spSetMunicipio(1, NULL, 'Licey al Medio', 29);
+CALL spSetMunicipio(1, NULL, 'Puñal', 29);
+CALL spSetMunicipio(1, NULL, 'Sabana Iglesia', 29);
+CALL spSetMunicipio(1, NULL, 'San José de las Matas', 29);
+CALL spSetMunicipio(1, NULL, 'Santiago', 29);
+CALL spSetMunicipio(1, NULL, 'Tamboril', 29);
+CALL spSetMunicipio(1, NULL, 'Villa González', 29);
+CALL spSetMunicipio(1, NULL, 'Monción', 30);
+CALL spSetMunicipio(1, NULL, 'San Ignacio de Sabaneta', 30);
+CALL spSetMunicipio(1, NULL, 'Villa los Almácigos', 30);
+CALL spSetMunicipio(1, NULL, 'Boca Chica', 31);
+CALL spSetMunicipio(1, NULL, 'Los Alcarrizos', 31);
+CALL spSetMunicipio(1, NULL, 'Pedro Brand', 31);
+CALL spSetMunicipio(1, NULL, 'San Antonio de Guerra', 31);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo Este', 31);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo Norte', 31);
+CALL spSetMunicipio(1, NULL, 'Santo Domingo Oeste', 31);
+CALL spSetMunicipio(1, NULL, 'Esperanza', 32);
+CALL spSetMunicipio(1, NULL, 'Laguna Salada', 32);
+CALL spSetMunicipio(1, NULL, 'Mao', 32);
+
+CALL spSetRolUsuario(1, NULL, 'Administrador');
+CALL spSetRolUsuario(1, NULL, 'Encargado de registro');
+CALL spSetRolUsuario(1, NULL, 'Analista de pruebas');
+CALL spSetRolUsuario(1, NULL, 'Evaluador final');
+CALL spSetRolUsuario(1, NULL, 'Solicitante');
+
+CALL spSetTipoMuestra(1, NULL, 'AL', 'Alimentos');
+CALL spSetTipoMuestra(1, NULL, 'AG', 'Agua');
+CALL spSetTipoMuestra(1, NULL, 'BA', 'Bebidas alcohólicas');
+
+CALL spSetTipoPrueba(1, NULL, 'FQ', 'Fisicoquímica');
+CALL spSetTipoPrueba(1, NULL, 'MB', 'Microbiológica');
+CALL spSetTipoPrueba(1, NULL, 'ET', 'De etiquetado');
+
+CALL spSetParametro(1, NULL, 1, 'pH', 'Numérico', 'Índice de acidez', NULL);
+CALL spSetParametro(1, NULL, 1, 'Grados Brix', 'Numérico', 'Concentración de azúcar', '°Brix');
+CALL spSetParametro(1, NULL, 1, 'Grasa', 'Numérico', 'Contenido de grasa', 'g');
+CALL spSetParametro(1, NULL, 1, 'Humedad', 'Numérico', 'Contenido de agua', '%');
+CALL spSetParametro(1, NULL, 1, 'Proteínas', 'Numérico', 'Contenido de proteínas', 'g');
+CALL spSetParametro(1, NULL, 1, 'Grado alcohólico', 'Numérico', 'Contenido de alcohol', '%');
+CALL spSetParametro(1, NULL, 1, 'Tiempo de frescura', 'Numérico', 'Duración óptima', 'días');
+CALL spSetParametro(1, NULL, 2, 'E. coli', 'Numérico', 'Cantidad de E. coli', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Salmonella spp.', 'Numérico', 'Cantidad de Salmonella', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Bacillus cereus', 'Numérico', 'Cantidad de Bacillus cereus', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Levaduras', 'Numérico', 'Cantidad de levaduras', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Número Más Probable de Coliformes', 'Numérico', 'Estimación de coliformes', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Enterococos fecales', 'Numérico', 'Cantidad de enterococos', 'ufc/g');
+CALL spSetParametro(1, NULL, 2, 'Crecimiento observado', 'Texto', 'Observación del crecimiento', NULL);
+CALL spSetParametro(1, NULL, 3, 'Ingredientes declarados', 'Texto', 'Listado de ingredientes', NULL);
+CALL spSetParametro(1, NULL, 3, 'Días hasta caducidad', 'Numérico', 'Tiempo hasta caducidad', 'días');
+CALL spSetParametro(1, NULL, 3, 'Lote de producción', 'Texto', 'Identificador del lote', NULL);
+CALL spSetParametro(1, NULL, 3, 'Información nutricional: calorías', 'Numérico', 'Cantidad de calorías', 'kcal');
+CALL spSetParametro(1, NULL, 3, 'Alérgenos', 'Texto', 'Alérgenos presentes', NULL);
+CALL spSetParametro(1, NULL, 3, 'Fuente de agua', 'Texto', 'Origen del agua', NULL);
+CALL spSetParametro(1, NULL, 3, 'Legibilidad de etiqueta', 'Texto', 'Claridad de la etiqueta', NULL);
+
+CALL spSetParametroDeTipoMuestra(1, 1, 1);
+CALL spSetParametroDeTipoMuestra(1, 2, 1);
+CALL spSetParametroDeTipoMuestra(1, 3, 1);
+CALL spSetParametroDeTipoMuestra(1, 1, 2);
+CALL spSetParametroDeTipoMuestra(1, 3, 2);
+CALL spSetParametroDeTipoMuestra(1, 1, 3);
+CALL spSetParametroDeTipoMuestra(1, 1, 4);
+CALL spSetParametroDeTipoMuestra(1, 2, 4);
+CALL spSetParametroDeTipoMuestra(1, 3, 4);
+CALL spSetParametroDeTipoMuestra(1, 1, 5);
+CALL spSetParametroDeTipoMuestra(1, 3, 5);
+CALL spSetParametroDeTipoMuestra(1, 3, 6);
+CALL spSetParametroDeTipoMuestra(1, 1, 7);
+CALL spSetParametroDeTipoMuestra(1, 1, 8);
+CALL spSetParametroDeTipoMuestra(1, 2, 8);
+CALL spSetParametroDeTipoMuestra(1, 3, 8);
+CALL spSetParametroDeTipoMuestra(1, 1, 9);
+CALL spSetParametroDeTipoMuestra(1, 2, 9);
+CALL spSetParametroDeTipoMuestra(1, 3, 9);
+CALL spSetParametroDeTipoMuestra(1, 1, 10);
+CALL spSetParametroDeTipoMuestra(1, 3, 11);
+CALL spSetParametroDeTipoMuestra(1, 2, 12);
+CALL spSetParametroDeTipoMuestra(1, 2, 13);
+CALL spSetParametroDeTipoMuestra(1, 1, 14);
+CALL spSetParametroDeTipoMuestra(1, 1, 15);
+CALL spSetParametroDeTipoMuestra(1, 2, 15);
+CALL spSetParametroDeTipoMuestra(1, 3, 15);
+CALL spSetParametroDeTipoMuestra(1, 1, 16);
+CALL spSetParametroDeTipoMuestra(1, 3, 16);
+CALL spSetParametroDeTipoMuestra(1, 1, 17);
+CALL spSetParametroDeTipoMuestra(1, 2, 17);
+CALL spSetParametroDeTipoMuestra(1, 3, 17);
+CALL spSetParametroDeTipoMuestra(1, 1, 18);
+CALL spSetParametroDeTipoMuestra(1, 3, 18);
+CALL spSetParametroDeTipoMuestra(1, 1, 19);
+CALL spSetParametroDeTipoMuestra(1, 2, 20);
+CALL spSetParametroDeTipoMuestra(1, 1, 21);
+CALL spSetParametroDeTipoMuestra(1, 2, 21);
+CALL spSetParametroDeTipoMuestra(1, 3, 21);
+
+CALL spSetColeccionNormas(1, NULL, 'CXC', 'Codex Alimentarius');
+CALL spSetColeccionNormas(1, NULL, 'NORDOM', 'Normas Técnicas Dominicanas');
+
+CALL spSetNorma(1, NULL, 1, '600', 'Directrices Generales para la Higiene de los Alimentos', 'Establece prácticas de higiene para la manipulación y almacenamiento de alimentos.', 2024, 'https://www.fao.org/fao-who-codexalimentarius/codex-texts/cxc-600');
+CALL spSetNorma(1, NULL, 1, '234', 'Métodos de Análisis para Determinar Parámetros Fisicoquímicos', 'Define métodos estandarizados para análisis de pH, acidez, humedad y otros.', 2023, 'https://www.fao.org/fao-who-codexalimentarius/codex-texts/cxc-234');
+CALL spSetNorma(1, NULL, 2, '220', 'Requisitos Microbiológicos para Productos Alimenticios', 'Especifica los límites microbiológicos aceptables en alimentos y bebidas.', 2022, 'https://indocal.gob.do/nordom-220');
+CALL spSetNorma(1, NULL, 2, '255', 'Rotulado y Etiquetado de Alimentos Preenvasados', 'Regula la información nutricional, alérgenos y lote en etiquetas.', 2021, 'https://indocal.gob.do/nordom-255');
+CALL spSetNorma(1, NULL, 2, '310', 'Análisis de Contenido Nutricional y Composición de Alimentos', 'Describe los métodos para determinar proteínas, grasas y calorías.', 2024, 'https://indocal.gob.do/nordom-310');
+
+CALL spSetLimitesDeConfianza(1, 1, 1, 4.00, 9.00, NULL); -- 1. pH
+CALL spSetLimitesDeConfianza(1, 1, 2, 6.00, 8.50, NULL);
+CALL spSetLimitesDeConfianza(1, 1, 3, 5.50, 9.00, NULL);
+CALL spSetLimitesDeConfianza(1, 2, 5, 5.00, NULL, NULL); -- 2. Grados Brix
+CALL spSetLimitesDeConfianza(1, 2, 2, 8.00, NULL, NULL);
+CALL spSetLimitesDeConfianza(1, 3, 5, NULL, 15.00, NULL); -- 3. Grasa
+CALL spSetLimitesDeConfianza(1, 3, 2, 0.50, 20.00, NULL);
+CALL spSetLimitesDeConfianza(1, 3, 1, 0.20, 25.00, NULL);
+CALL spSetLimitesDeConfianza(1, 4, 1, 2.00, 15.00, NULL); -- 4. Humedad
+CALL spSetLimitesDeConfianza(1, 4, 2, 3.00, 12.00, NULL);
+CALL spSetLimitesDeConfianza(1, 4, 5, 3.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 5, 5, 2.00, NULL, NULL); -- 5. Proteínas
+CALL spSetLimitesDeConfianza(1, 5, 1, 5.00, 40.00, NULL);
+CALL spSetLimitesDeConfianza(1, 5, 3, 3.00, 30.00, NULL);
+CALL spSetLimitesDeConfianza(1, 6, 1, NULL, 15.00, NULL); -- 6. Grado alcohólico
+CALL spSetLimitesDeConfianza(1, 6, 2, NULL, 50.00, NULL);
+CALL spSetLimitesDeConfianza(1, 6, 3, NULL, 40.00, NULL);
+CALL spSetLimitesDeConfianza(1, 7, 1, 5.00, NULL, NULL); -- 7. Tiempo de frescura
+CALL spSetLimitesDeConfianza(1, 7, 5, 2.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 8, 3, 0.00, 100.00, NULL); -- 8. E. coli
+CALL spSetLimitesDeConfianza(1, 8, 1, 0.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 8, 2, 0.00, 50.00, NULL);
+CALL spSetLimitesDeConfianza(1, 9, 2, 0.00, 0.00, NULL); -- 9. Salmonella spp
+CALL spSetLimitesDeConfianza(1, 9, 3, 0.00, 0.00, NULL);
+CALL spSetLimitesDeConfianza(1, 9, 1, 0.00, 0.00, NULL);
+CALL spSetLimitesDeConfianza(1, 10, 3, 0.00, 1000.00, NULL); -- 10. Bacillus cereus
+CALL spSetLimitesDeConfianza(1, 10, 5, 0.00, 500.00, NULL);
+CALL spSetLimitesDeConfianza(1, 11, 3, 0.00, 1000.00, NULL); -- 11. Levaduras
+CALL spSetLimitesDeConfianza(1, 11, 1, 0.00, 2000.00, NULL);
+CALL spSetLimitesDeConfianza(1, 12, 3, NULL, 3.00, NULL); -- 12. NMP de Coliformes
+CALL spSetLimitesDeConfianza(1, 12, 2, NULL, 5.00, NULL);
+CALL spSetLimitesDeConfianza(1, 12, 1, NULL, 3.00, NULL);
+CALL spSetLimitesDeConfianza(1, 13, 3, 0.00, 100.00, NULL); -- 13. Enterococos fecales
+CALL spSetLimitesDeConfianza(1, 13, 1, 0.00, 10.00, NULL);
+CALL spSetLimitesDeConfianza(1, 14, 1, NULL, NULL, 'Ausente'); -- 14. Crecimiento observado
+CALL spSetLimitesDeConfianza(1, 15, 4, NULL, NULL, 'Ingredientes coinciden con etiqueta'); -- 15. Ingredientes declarados
+CALL spSetLimitesDeConfianza(1, 15, 2, NULL, NULL, 'Todos los ingredientes están listados');
+CALL spSetLimitesDeConfianza(1, 16, 5, 30.00, NULL, NULL); -- 16. Días hasta caducidad
+CALL spSetLimitesDeConfianza(1, 16, 1, 10.00, 90.00, NULL);
+CALL spSetLimitesDeConfianza(1, 16, 2, 7.00, 60.00, NULL);
+CALL spSetLimitesDeConfianza(1, 17, 4, NULL, NULL, 'Con identificador visible y legible'); -- 17. Lote de producción
+CALL spSetLimitesDeConfianza(1, 17, 1, NULL, NULL, 'Claramente impreso');
+CALL spSetLimitesDeConfianza(1, 18, 5, 50.00, 800.00, NULL); -- 18. Calorías
+CALL spSetLimitesDeConfianza(1, 18, 1, 20.00, 1000.00, NULL);
+CALL spSetLimitesDeConfianza(1, 18, 2, 10.00, 1200.00, NULL);
+CALL spSetLimitesDeConfianza(1, 19, 4, NULL, NULL, 'Declara si contiene alérgenos'); -- 19. Alérgenos
+CALL spSetLimitesDeConfianza(1, 19, 2, NULL, NULL, 'Menciona alérgenos específicos');
+CALL spSetLimitesDeConfianza(1, 20, 4, NULL, NULL, 'Origen y tipo de fuente indicada'); -- 20. Fuente de agua
+CALL spSetLimitesDeConfianza(1, 20, 1, NULL, NULL, 'Fuente de agua especificada claramente');
+CALL spSetLimitesDeConfianza(1, 21, 4, NULL, NULL, 'Legible a simple vista'); -- 21. Legibilidad de etiqueta
+
+CALL spSetLaboratorio(1, NULL, 'Lab Central', 'central@labsrd.com', '8091111111', 'Av. Independencia #100', 'Centro', 32);
+CALL spSetLaboratorio(1, NULL, 'Lab Caribe', 'caribe@labsrd.com', '8092222222', 'Calle Duarte #50', 'Zona Norte', 154);
+
+CALL spSetEmpresa(1, NULL, '130418429', 'Alimentos RD', 'Alimentos Dominicana S.A.', 'contacto@alird.com', '8093333333', 'Av. Churchill #200', 'Ensanche', 32);
+CALL spSetEmpresa(1, NULL, '430813548', 'Distribuidora Quisqueya', 'Distribuidora Quisqueya SRL', 'ventas@quisqueya.com', '8095555555', 'Carretera Mella Km 8', 'Zona Oeste', 155);
+CALL spSetEmpresa(1, NULL, '133701335', 'Lácteos del Cibao', 'Lácteos del Cibao S.A.', 'info@lacteoscibao.com', '8096666666', 'Calle Restauración #15', 'Zona Norte', 143);
+
+CALL spSetUsuario(1, NULL, '01000000001', 'root', 'root@gmail.com', 'root', NULL, 1, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '01234567890', 'Juan Pérez', 'juanperez@gmail.com', '1234', '8091234567', 1, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '12312312312', 'Test #1', '1@gmail.com', '1234', NULL, 2, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '45645645645', 'Test #2', '2@gmail.com', '1234', NULL, 3, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '78978978978', 'Test #3', '3@gmail.com', '1234', NULL, 4, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '32132132132', 'Test2 #1', '1.2@gmail.com', '1234', NULL, 2, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '65465465465', 'Test2 #2', '2.2@gmail.com', '1234', NULL, 3, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '98798798798', 'Test2 #3', '3.2@gmail.com', '1234', NULL, 4, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '40212345678', 'Cliente 1', 'cliente1@gmail.com', '1234', '8097777777', 5, 1, NULL, NULL, 32);
+CALL spSetUsuario(1, NULL, '40298765432', 'Cliente 2', 'cliente2@gmail.com', '1234', '8098298498', 5, 3, NULL, NULL, 149);
+
+-- Muestras (ejemplos de inserts)
+CALL spSetMuestra(1, NULL, 9, 1, 2, 1, 'Yogurt natural Nestlé', 'Buena', '2025-09-06', 1, 'Adecuado', 'Adecuado', 4.50, 'Blanco', 'Característico', 'Dulce', 'Líquido', 'Suave', 200.00, '2026-03-01', 'Producto refrigerado, lote pequeño', NULL, 3);
+CALL spSetMuestra(1, NULL, 9, 1, 2, 2, 'Agua purificada Dasani', 'Buena', '2025-09-09', 2, 'Adecuado', 'Adecuado', 5.80, 'Transparente', 'Sin olor', 'Sin sabor', 'Líquido', 'Suave', 1500.00, '2026-03-10', 'Botella sellada correctamente', NULL, 6);
+CALL spSetMuestra(1, NULL, 9, 2, 3, 3, 'Vino tinto Concha y Toro Reservado', 'Buena', '2025-09-08', 1, 'Adecuado', 'Adecuado', 20.00, 'Rojo', 'Característico', 'Ácido', 'Líquido', 'Suave', 750.00, '2028-05-01', 'Botella sellada, color intenso', NULL, 3);
+CALL spSetMuestra(1, NULL, 10, 3, 1, 1, 'Harina de trigo Robin Hood', 'Buena', '2025-09-13', 1, 'Adecuado', 'Desconocido', NULL, 'Blanco', 'Sin olor', 'Sin sabor', 'Polvo', 'Granulosa', 5000.00, '2026-08-30', 'Saco sellado correctamente', NULL, 6);
+CALL spSetMuestra(1, NULL, 10, 3, 1, 2, 'Agua de pozo artesanal Sierra Azul', 'Regular', '2025-09-15', 2, 'Inadecuado', 'Desconocido', 22.00, 'Transparente', 'Característico', 'Sin sabor', 'Líquido', 'Suave', 500.00, NULL, 'Envase sin etiquetar, leve olor mineral', NULL, 3);
+CALL spSetMuestra(1, NULL, 10, 1, 3, 1, 'Aceite vegetal Crisol', 'Mala', '2025-09-10', 2, 'Adecuado', 'Inadecuado', 23.50, 'Amarillo', 'Desagradable', 'Amargo', 'Líquido', 'Viscosa', 900.00, '2026-01-15', 'Color y olor alterados', NULL, 6);
+CALL spSetMuestra(1, NULL, 10, 1, 2, 3, 'Cerveza Presidente', 'Regular', '2025-09-12', 1, 'Adecuado', 'Adecuado', 10.00, 'Amarillo', 'Característico', 'Amargo', 'Líquido', 'Viscosa', 330.00, '2026-02-10', 'Espuma ligera, botella intacta', NULL, 3);
+CALL spSetMuestra(1, NULL, 9, 2, 1, 1, 'Chocolate en barra Hershey’s', 'Deteriorada', '2025-09-11', 1, 'Inadecuado', 'Inadecuado', 28.00, 'Marrón', 'Característico', 'Dulce', 'Sólido', 'Granulosa', 120.00, '2026-05-20', 'Envase roto, con exposición al aire', NULL, 6);
+CALL spSetMuestra(1, NULL, 9, 3, 1, 3, 'Ron Brugal Extra Viejo', 'Buena', '2025-09-14', 2, 'Adecuado', 'Adecuado', 25.00, 'Marrón', 'Característico', 'Dulce', 'Líquido', 'Suave', 700.00, '2030-09-16', 'Botella sellada, aroma fuerte', NULL, 3);
+CALL spSetMuestra(1, NULL, 9, 2, 3, 1, 'Jugo de Naranja Tropicana', 'Regular', '2025-09-16', 1, 'Inadecuado', 'Adecuado', 8.20, 'Amarillo', 'Característico', 'Ácido', 'Líquido', 'Viscosa', 1000.00, '2025-12-15', 'Envase con abolladuras', NULL, 6);
+
+-- Ejemplo de llamadas que llevan hasta la certificación de la muestra ID 1 (tipo muestra ID 1)
+CALL spSetAsignacion(2, 1, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetPrueba(1, NULL, 1, 1, NULL, NULL);
+CALL spSetResultado(1, 1, 1, 7.20, NULL, 'Valor dentro del rango esperado de pH.');
+CALL spSetResultado(1, 1, 2, 8.80, NULL, NULL);
+CALL spSetResultado(1, 1, 3, 8.50, NULL, NULL);
+CALL spSetResultado(1, 1, 4, 7.00, NULL, 'Lectura estable de grados Brix.');
+CALL spSetResultado(1, 1, 5, 6.20, NULL, NULL);
+CALL spSetResultado(1, 1, 7, 9.50, NULL, 'Valor cercano al límite superior de grasa.');
+CALL spSetPrueba(1, NULL, 1, 2, NULL, NULL);
+CALL spSetResultado(1, 2, 8, 9.00, NULL, NULL);
+CALL spSetResultado(1, 2, 9, 8.00, NULL, NULL);
+CALL spSetResultado(1, 2, 10, 25.00, NULL, 'Humedad controlada en niveles óptimos.');
+CALL spSetResultado(1, 2, 14, NULL, 'SÍ - Ausente', NULL);
+CALL spSetPrueba(1, NULL, 1, 3, NULL, NULL);
+CALL spSetResultado(1, 3, 15, NULL, 'NO - Todos los ingredientes están listados; SÍ - Ingredientes coinciden con etiqueta', 'Ciertos ingredientes no están presentes.');
+CALL spSetResultado(1, 3, 17, NULL, 'SÍ - Claramente impreso; SÍ - Con identificador visible y legible', 'Etiqueta verificada visualmente.');
+CALL spSetResultado(1, 3, 18, 750.00, NULL, NULL);
+CALL spSetResultado(1, 3, 19, NULL, 'SÍ - Menciona alérgenos específicos; SÍ - Declara si contiene alérgenos', NULL);
+CALL spSetAsignacion(2, 2, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetPrueba(2, 1, NULL, NULL, NULL, TRUE);
+CALL spSetPrueba(2, 2, NULL, NULL, NULL, TRUE);
+CALL spSetPrueba(2, 3, NULL, NULL, NULL, TRUE);
+CALL spSetMuestra(2, 1, 9, 1, 2, NULL, 'Yogurt natural Nestlé', 'Buena', '2025-09-06', 1, 'Adecuado', 'Adecuado', 4.50, 'Blanco', 'Característico', 'Dulce', 'Líquido', 'Suave', 200.00, '2026-03-01', 'Producto refrigerado, lote pequeño', TRUE, 3);
+CALL spSetAsignacion(2, 3, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+
+/* -- Algunos selects útiles
+SELECT * FROM Usuario;
+SELECT * FROM Muestra;
+SELECT * FROM Asignacion;
+SELECT * FROM Prueba;
+SELECT * FROM Parametro;
+SELECT * FROM LimitesDeConfianza;
+SELECT * FROM Resultado;
+
+SELECT *
+FROM ParametroDeTipoMuestra patm
+-- INNER JOIN Parametro pa ON pa.id_parametro = patm.id_parametro
+WHERE patm.id_tipo_muestra = 1;
+
+SELECT
+	-- patm.*,
+    pa.id_parametro,
+    -- pa.codigo_parametro,
+	-- pa.id_tipo_prueba,
+	pa.nombre_parametro,
+	pa.tipo_parametro,
+    -- pa.descripcion_parametro,
+    pa.unidad_medida_parametro,
+    -- pa.usar_parametro_en_pruebas,
+	-- lc.id_norma,
+	lc.valor_min_limite_parametro,
+	lc.valor_max_limite_parametro,
+	lc.valor_texto_limite_parametro-- ,
+	-- lc.usar_limites_en_pruebas,
+FROM LimitesDeConfianza lc
+INNER JOIN Parametro pa ON pa.id_parametro = lc.id_parametro
+INNER JOIN ParametroDeTipoMuestra patm ON patm.id_parametro = pa.id_parametro
+WHERE patm.id_tipo_muestra = 1
+	AND pa.id_tipo_prueba = 3
+	AND pa.usar_parametro_en_pruebas = TRUE
+    AND lc.usar_limites_en_pruebas = TRUE
+    -- and pa.id_parametro = 19
+ORDER BY pa.id_parametro, lc.id_norma;
+*/
+
+/*-- ignorar estos (testing)
+CALL spSetAsignacion(2, 1, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 2, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 16, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 17, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetAsignacion(2, 18, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetUsuario(3, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+CALL spSetAsignacion(2, 21, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetUsuario(3, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+CALL spSetAsignacion(2, 22, NULL, NULL, 'Finalizada', NULL, NULL, @v_dummy);
+CALL spSetUsuario(3, 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+CALL spSetAsignacion(2, 24, NULL, NULL, 'Devuelta', NULL, NULL, @v_dummy);
+CALL spSetUsuario(4, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+SELECT * FROM Asignacion WHERE id_muestra = 1;
+SELECT * FROM Muestra;*/

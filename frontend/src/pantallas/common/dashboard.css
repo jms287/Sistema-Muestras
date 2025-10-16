@@ -1,0 +1,325 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #f0f2f5;
+  }
+  
+  .dashboard {
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+    .menuItem,
+    .menuLabel,
+    .mainContent,
+    .inicioContainer,
+    .welcomeCard,
+    .infoBox,
+    .moduleContainer,
+    .placeholderBox,
+    .asignacionesTable th,
+    .asignacionesTable td,
+    .statCard {
+    background-color: #f5f5f5 !important;
+    color: #111 !important;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="month"],
+    input[type="week"],
+    select,
+    textarea {
+      background-color: #f5f5f5 !important;
+      color: #111 !important;
+      border: 1px solid #bcd0ee;
+    }
+    
+    option {
+      background-color: #f5f5f5 !important;
+      color: #111 !important;
+    }
+    
+
+  .topBar {
+    height: 60px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .logoIcon {
+    font-size: 28px;
+  }
+  
+  .logoText {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+  }
+  
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .userName {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+  }
+  
+  .userRole {
+    font-size: 13px;
+    color: #222;
+  }
+  
+  .btnLogout {
+    padding: 8px 16px;
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .mainLayout {
+    display: flex;
+    flex: 1;
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+  }
+  
+  .sidebar {
+    width: 250px;
+    background-color: #fff;
+    border-right: 1px solid #e0e0e0;
+    padding: 20px 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+  }
+  
+  .menuItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #e8e8e8;
+    transition: all 0.2s;
+    text-align: left;
+    width: 200px;
+    justify-content: center;
+  }
+  
+  .menuItemActive {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border-left: 4px solid #1976d2;
+  }
+  
+  .menuIcon {
+    font-size: 18px;
+  }
+  
+  .menuLabel {
+    flex: 1;
+  }
+  
+  .mainContent {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    color: #111;
+  }
+  
+  .inicioContainer {
+    max-width: 1000px;
+    margin: 0 auto;
+    color: #111;
+  }
+  
+  .welcomeCard {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    color: #111;
+  }
+  
+  .infoBox {
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 20px;
+    color: #111;
+  }
+  
+  .accionesList {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    color: #111;
+  }
+  
+  .statsRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  .statCard {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    color: #111;
+  }
+  
+  .statNumber {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1976d2;
+    margin-bottom: 8px;
+  }
+  
+  .statLabel {
+    font-size: 14px;
+    color: #222;
+  }
+  
+  .moduleContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #111;
+  }
+  
+  .placeholder {
+    font-size: 16px;
+    color: #222;
+    margin-top: 10px;
+  }
+  
+  .placeholderBox {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    color: #111;
+  }
+  
+  .placeholderText {
+    font-size: 18px;
+    color: #222;
+  }
+  
+  .note {
+    font-size: 14px;
+    color: #222;
+    font-style: italic;
+    margin-top: 10px;
+  }
+  
+  .asignacionesTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: #111;
+  }
+  
+  .asignacionesTable th,
+  .asignacionesTable td {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .asignacionesTable thead tr {
+    background: #e3f2fd;
+  }
+  
+  .menuItem:hover:not(.menuItemActive) {
+    background-color: #f5f5f5;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+
+  /* Botón Ver Asignación */
+.btnVerAsignacion {
+  padding: 6px 12px;
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btnVerAsignacion:hover {
+  background-color: #2563eb;
+  opacity: 1;
+}
+
+/* Ajustes para la tabla de asignaciones */
+.asignacionesTable th:last-child,
+.asignacionesTable td:last-child {
+  text-align: center;
+  width: 100px;
+}
+
+.asignacionesTable td {
+  vertical-align: middle;
+}
