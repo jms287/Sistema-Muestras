@@ -45,6 +45,8 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [pruebasValidadasOk, setPruebasValidadasOk] = useState(false);
+  const [mostrarAvisoValidacion, setMostrarAvisoValidacion] = useState(false);
 
   // Estados para formulario de edición
   const [formData, setFormData] = useState(null);
@@ -152,6 +154,10 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
             console.error('Error buscando asignación en proceso:', err);
           }
         }
+
+        if (user.id_rol_usuario === 4) {
+          await loadValidacionPruebas(muestraData.id_muestra);
+        }
       } else {
         setError('Muestra no encontrada');
       }
@@ -160,6 +166,37 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadValidacionPruebas = async (idMuestra) => {
+    try {
+      const pruebasData = await apiCall('/prueba/get', [
+        null,
+        null,
+        idMuestra,
+        null,
+        null,
+        null,
+        null,
+        true,
+        null,
+        null
+      ]);
+
+      if (!pruebasData || pruebasData.length === 0) {
+        setPruebasValidadasOk(false);
+        return;
+      }
+
+      const todasValidadas = pruebasData.every(
+        (prueba) => prueba.prueba_validada === true || prueba.prueba_validada === 1
+      );
+
+      setPruebasValidadasOk(todasValidadas);
+    } catch (err) {
+      console.error('Error verificando validacion de pruebas:', err);
+      setPruebasValidadasOk(false);
     }
   };
 
@@ -417,6 +454,14 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
     }
   };
 
+  const getVolverAsignacionLabel = () => {
+    const rol = user?.id_rol_usuario;
+    if (rol === 2) return '← Ver Muestras Registradas';
+    if (rol === 3) return '← Ver Pruebas';
+    if (rol === 4) return '← Evaluar Muestras';
+    return '← Volver';
+  };
+
   if (loading) return <div style={styles.loading}>Cargando datos de la muestra...</div>;
   if (error && !muestra) return <div style={styles.error}>{error}</div>;
   if (!muestra) return <div style={styles.error}>Muestra no encontrada</div>;
@@ -427,6 +472,16 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
                       asignacionEnProceso.numero_fase_asignacion === 1;
   const puedeDescartar = user.id_rol_usuario === 1 && muestra.estado_muestra !== 'Certificada';
   const puedeToggleValidacion = user.id_rol_usuario === 4 && muestra.estado_muestra === 'Evaluada';
+  const puedeValidarMuestra = puedeToggleValidacion && pruebasValidadasOk;
+
+  const handleIntentoValidar = () => {
+    if (!puedeValidarMuestra) {
+      setMostrarAvisoValidacion(true);
+      return;
+    }
+    setMostrarAvisoValidacion(false);
+    handleToggleValidacion();
+  };
 
   const mostrarBotonVolver = !isEditing && (user.id_rol_usuario === 1 || user.id_rol_usuario === 5);
   const mostrarBotonAsignacion = !isEditing && (user.id_rol_usuario === 2 || user.id_rol_usuario === 3 || user.id_rol_usuario === 4) && asignacionEnProceso;
@@ -447,7 +502,7 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
           )}
           {mostrarBotonAsignacion && (
             <button onClick={handleVolverAsignacion} style={styles.backButton}>
-              ← Tu Asignación
+              {getVolverAsignacionLabel()}
             </button>
           )}
           {!isEditing && puedeEditar && (
@@ -461,12 +516,21 @@ export default function VerMuestra({ muestraId, user, onBack, onUpdate, onVerAsi
             </button>
           )}
           {!isEditing && puedeToggleValidacion && (
-            <button 
-              onClick={handleToggleValidacion} 
-              style={muestra.muestra_validada ? styles.invalidateButton : styles.validateButton}
-            >
-              {muestra.muestra_validada ? '✗ Invalidar Muestra' : '✓ Validar Muestra'}
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+              <button 
+                onClick={handleIntentoValidar}
+                style={puedeValidarMuestra
+                  ? (muestra.muestra_validada ? styles.invalidateButton : styles.validateButton)
+                  : styles.validateButtonDisabled}
+              >
+                {muestra.muestra_validada ? '✗ Invalidar Muestra' : '✓ Validar Muestra'}
+              </button>
+              {mostrarAvisoValidacion && !puedeValidarMuestra && (
+                <div style={styles.validationHint}>
+                  Debe validar todas las pruebas para habilitar esta accion.
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -1094,6 +1158,26 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     transition: 'background-color 0.2s'
+  },
+  validateButtonDisabled: {
+    backgroundColor: '#d1d5db',
+    color: '#9ca3af',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '6px',
+    fontSize: '14px',
+    cursor: 'not-allowed',
+    fontWeight: '600',
+    opacity: 0.7
+  },
+  validationHint: {
+    backgroundColor: '#fee2e2',
+    color: '#dc2626',
+    padding: '6px 10px',
+    borderRadius: '4px',
+    fontSize: '12px',
+    fontWeight: '500',
+    border: '1px solid #fecaca'
   },
   loading: {
     textAlign: 'center',

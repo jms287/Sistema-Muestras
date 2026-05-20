@@ -8,12 +8,13 @@ router.get('/metadata/:tabla', async (req, res) => {
       if (!/^[a-zA-Z0-9_]+$/.test(tabla)) {
         return res.status(400).json({ success: false, columns: [], message: 'Nombre de tabla inválido' });
       }
+      const schema = db?.config?.connectionConfig?.database || process.env.DB_NAME || 'webreto';
       const [rows] = await db.query(
         `SELECT COLUMN_NAME, DATA_TYPE 
          FROM INFORMATION_SCHEMA.COLUMNS 
          WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? 
          ORDER BY ORDINAL_POSITION`, // <-- Aquí está el cambio
-        ['webreto', tabla]
+        [schema, tabla]
       );
       res.json({ success: true, columns: rows });
     } catch (err) {
