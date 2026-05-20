@@ -12,20 +12,18 @@ function SignIn({ onLogin, onGoToSignUp }) {  // <- AGREGAR onGoToSignUp
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/usuario/get', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          args: [
-            null, null, null, email, password,
-            null, null, null, null, null, null, null, null, null
-          ]
+          correo_usuario: email,
+          password_usuario: password
         })
       })
       const result = await res.json()
       setLoading(false)
-      if (result.success && result.data && result.data.length > 0) {
-        if (onLogin) onLogin(result.data[0])
+      if (result.success && result.user && result.token) {
+        if (onLogin) onLogin({ user: result.user, token: result.token })
       } else {
         setError(result.message || 'Credenciales incorrectas')
       }
@@ -37,29 +35,34 @@ function SignIn({ onLogin, onGoToSignUp }) {  // <- AGREGAR onGoToSignUp
 
   return (
     <div className="signin-container">
-      <form className="signin-form" onSubmit={handleSubmit}>
+      <form className="signin-form" onSubmit={handleSubmit} autoComplete="on">
+        <h1 className="signin-app-title">DIGEMAPS</h1>
         <h2 className="signin-title">Iniciar sesión</h2>
         <div className="signin-field">
           <label htmlFor="email">Correo electrónico</label>
           <input
             id="email"
+            name="email"
             type="email"
             placeholder="Correo electrónico"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
             autoFocus
+            autoComplete="email"
           />
         </div>
         <div className="signin-field">
           <label htmlFor="password">Contraseña</label>
           <input
             id="password"
+            name="password"
             type="password"
             placeholder="Contraseña"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
           />
         </div>
         <button className="signin-btn" type="submit" disabled={loading}>

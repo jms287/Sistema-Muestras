@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { buildAuthHeaders } from '../../utils/auth.js';
 
 const tablas = [
   { label: 'Asignacion', table: 'Asignacion', route: 'asignacion' },
@@ -42,7 +43,9 @@ export default function PanelAdmin() {
   useEffect(() => {
     if (tablaSeleccionada) {
       setLoading(true);
-      fetch(`${API_BASE}/metadata/${tablaSeleccionada.table}`)
+      fetch(`${API_BASE}/metadata/${tablaSeleccionada.table}`, {
+        headers: { ...buildAuthHeaders() }
+      })
         .then(res => res.json())
         .then(res => {
           setColumns(res.columns || []);
@@ -52,7 +55,7 @@ export default function PanelAdmin() {
           // Realiza búsqueda automática con todos los campos en null
           return fetch(`${API_BASE}/${tablaSeleccionada.route}/get`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
             body: JSON.stringify({ args: (res.columns || []).map(() => null) })
           });
         })
@@ -88,7 +91,7 @@ export default function PanelAdmin() {
       const endpoint = `${API_BASE}/${tablaSeleccionada.route}/get`;
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
         body: JSON.stringify({ args })
       });
       const json = await res.json();
@@ -117,7 +120,7 @@ export default function PanelAdmin() {
       const endpoint = `${API_BASE}/${tablaSeleccionada.route}/set`;
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
         body: JSON.stringify({ args })
       });
       const json = await res.json();

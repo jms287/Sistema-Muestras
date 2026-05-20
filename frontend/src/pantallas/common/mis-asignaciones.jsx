@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { formatDateShort } from '../../utils/dateUtils';
+import { buildAuthHeaders } from '../../utils/auth.js';
 import './dashboard.css';
 
 const API_BASE = '/api';
 async function apiCall(endpoint, args = []) {
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
     body: JSON.stringify({ args })
   });
   const json = await res.json();

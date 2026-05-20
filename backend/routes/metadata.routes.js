@@ -1,8 +1,9 @@
 const express = require('express');
 const db = require('../db'); // Tu módulo de conexión MySQL
+const { requireRoles, ROLE } = require('../utils/auth');
 const router = express.Router();
 
-router.get('/metadata/:tabla', async (req, res) => {
+router.get('/metadata/:tabla', requireRoles([ROLE.ADMIN]), async (req, res) => {
     try {
       const tabla = req.params.tabla;
       if (!/^[a-zA-Z0-9_]+$/.test(tabla)) {

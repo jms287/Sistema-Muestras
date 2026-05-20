@@ -1,25 +1,28 @@
 const express = require('express');
 const { callSP } = require('../utils/sp');
+const { requireRoles, ROLE } = require('../utils/auth');
 const router = express.Router();
 
 
-router.post('/norma/get', async (req, res) => {
+router.post('/norma/get', requireRoles([ROLE.ADMIN, ROLE.REGISTRADOR, ROLE.ANALISTA, ROLE.EVALUADOR]), async (req, res) => {
   try {
     const data = await callSP('spGetNorma', req.body?.args || []);
     res.json({ success: true, data });
   } catch (err) {
+    const status = err.statusCode || 500;
     console.error('spGetNorma error:', err);
-    res.status(500).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
+    res.status(status).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
   }
 });
 
-router.post('/norma/set', async (req, res) => {
+router.post('/norma/set', requireRoles([ROLE.ADMIN]), async (req, res) => {
   try {
     const data = await callSP('spSetNorma', req.body?.args || []);
     res.json({ success: true, data });
   } catch (err) {
+    const status = err.statusCode || 500;
     console.error('spSetNorma error:', err);
-    res.status(500).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
+    res.status(status).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
   }
 });
 

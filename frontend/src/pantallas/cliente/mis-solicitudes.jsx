@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { formatDateShort } from '../../utils/dateUtils';
 import '../common/dashboard.css';
 
+import { buildAuthHeaders } from '../../utils/auth.js';
+
 const API_BASE = 'http://localhost:3001/api'; // Ensure the backend URL is correct
 async function apiCall(endpoint, args = []) {
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
     body: JSON.stringify({ args })
   });
   const json = await res.json();

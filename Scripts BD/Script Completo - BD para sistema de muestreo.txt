@@ -1474,6 +1474,7 @@ BEGIN
     END IF;
     
     IF p_operacion = 1 THEN
+        -- p_password_usuario debe llegar hasheado desde el backend (bcrypt)
         INSERT INTO Usuario (cedula_usuario, nombre_usuario, correo_usuario, password_usuario, tel_contacto_usuario, id_rol_usuario, id_emp_usuario, direccion_usuario, sector_usuario, id_municipio_usuario)
         VALUES (p_cedula_usuario, p_nombre_usuario, p_correo_usuario, p_password_usuario, p_tel_contacto_usuario, p_id_rol_usuario, p_id_emp_usuario, p_direccion_usuario, p_sector_usuario, p_id_municipio_usuario);
 		
@@ -3122,16 +3123,16 @@ CALL spSetEmpresa(1, NULL, '130418429', 'Alimentos RD', 'Alimentos Dominicana S.
 CALL spSetEmpresa(1, NULL, '430813548', 'Distribuidora Quisqueya', 'Distribuidora Quisqueya SRL', 'ventas@quisqueya.com', '8095555555', 'Carretera Mella Km 8', 'Zona Oeste', 155);
 CALL spSetEmpresa(1, NULL, '133701335', 'Lácteos del Cibao', 'Lácteos del Cibao S.A.', 'info@lacteoscibao.com', '8096666666', 'Calle Restauración #15', 'Zona Norte', 143);
 
-CALL spSetUsuario(1, NULL, '01000000001', 'root', 'root@gmail.com', 'root', NULL, 1, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '01234567890', 'Juan Pérez', 'juanperez@gmail.com', '1234', '8091234567', 1, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '12312312312', 'Test #1', '1@gmail.com', '1234', NULL, 2, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '45645645645', 'Test #2', '2@gmail.com', '1234', NULL, 3, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '78978978978', 'Test #3', '3@gmail.com', '1234', NULL, 4, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '32132132132', 'Test2 #1', '1.2@gmail.com', '1234', NULL, 2, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '65465465465', 'Test2 #2', '2.2@gmail.com', '1234', NULL, 3, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '98798798798', 'Test2 #3', '3.2@gmail.com', '1234', NULL, 4, NULL, NULL, NULL, NULL);
-CALL spSetUsuario(1, NULL, '40212345678', 'Cliente 1', 'cliente1@gmail.com', '1234', '8097777777', 5, 1, NULL, NULL, 32);
-CALL spSetUsuario(1, NULL, '40298765432', 'Cliente 2', 'cliente2@gmail.com', '1234', '8098298498', 5, 3, NULL, NULL, 149);
+CALL spSetUsuario(1, NULL, '01000000001', 'root', 'root@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 1, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '01234567890', 'Juan Pérez', 'juanperez@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', '8091234567', 1, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '12312312312', 'Test #1', '1@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 2, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '45645645645', 'Test #2', '2@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 3, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '78978978978', 'Test #3', '3@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 4, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '32132132132', 'Test2 #1', '1.2@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 2, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '65465465465', 'Test2 #2', '2.2@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 3, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '98798798798', 'Test2 #3', '3.2@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', NULL, 4, NULL, NULL, NULL, NULL);
+CALL spSetUsuario(1, NULL, '40212345678', 'Cliente 1', 'cliente1@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', '8097777777', 5, 1, NULL, NULL, 32);
+CALL spSetUsuario(1, NULL, '40298765432', 'Cliente 2', 'cliente2@gmail.com', '$2a$12$5LGKJTB2AN62/Lq7d18KPehpnOE3ipyYU0ic94islSiY2WgzZxqya', '8098298498', 5, 3, NULL, NULL, 149);
 
 -- Muestras (ejemplos de inserts)
 CALL spSetMuestra(1, NULL, 9, 1, 2, 1, 'Yogurt natural Nestlé', 'Buena', '2025-09-06', 1, 'Adecuado', 'Adecuado', 4.50, 'Blanco', 'Característico', 'Dulce', 'Líquido', 'Suave', 200.00, '2026-03-01', 'Producto refrigerado, lote pequeño', NULL, 3);

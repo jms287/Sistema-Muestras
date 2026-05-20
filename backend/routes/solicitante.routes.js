@@ -1,25 +1,28 @@
 const express = require('express');
 const { callSP } = require('../utils/sp');
+const { requireRoles, ROLE } = require('../utils/auth');
 const router = express.Router();
 
 
-router.post('/solicitante/get', async (req, res) => {
+router.post('/solicitante/get', requireRoles([ROLE.ADMIN]), async (req, res) => {
   try {
     const data = await callSP('spGetSolicitante', req.body?.args || []);
     res.json({ success: true, data });
   } catch (err) {
+    const status = err.statusCode || 500;
     console.error('spGetSolicitante error:', err);
-    res.status(500).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
+    res.status(status).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
   }
 });
 
-router.post('/solicitante/set', async (req, res) => {
+router.post('/solicitante/set', requireRoles([ROLE.ADMIN]), async (req, res) => {
   try {
     const data = await callSP('spSetSolicitante', req.body?.args || []);
     res.json({ success: true, data });
   } catch (err) {
+    const status = err.statusCode || 500;
     console.error('spSetSolicitante error:', err);
-    res.status(500).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
+    res.status(status).json({ success: false, message: 'Error interno', detail: err?.message || String(err) });
   }
 });
 
