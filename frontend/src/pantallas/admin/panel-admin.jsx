@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
 
 const tablas = [
-    "Asignacion",
-    "ColeccionNormas",
-    "Documento",
-    "Empresa",
-    "Laboratorio",
-    "LimitesDeConfianza",
-    "LogAcciones",
-    "LogEventosSistema",
-    "Muestra",
-    "Municipio",
-    "Norma",
-    "Notificacion",
-    "Parametro",
-    "ParametroDeTipoMuestra",
-    "Provincia",
-    "Prueba",
-    "Resultado",
-    "Rolusuario",
-    "TipoMuestra",
-    "TipoPrueba",
-    "Usuario",
+  { label: 'Asignacion', table: 'Asignacion', route: 'asignacion' },
+  { label: 'ColeccionNormas', table: 'ColeccionNormas', route: 'coleccionnormas' },
+  { label: 'Documento', table: 'Documento', route: 'documento' },
+  { label: 'Empresa', table: 'Empresa', route: 'empresa' },
+  { label: 'Laboratorio', table: 'Laboratorio', route: 'laboratorio' },
+  { label: 'LimitesDeConfianza', table: 'LimitesDeConfianza', route: 'limitesdeconfianza' },
+  { label: 'LogAcciones', table: 'LogAcciones', route: 'logacciones' },
+  { label: 'LogEventosSistema', table: 'LogEventosSistema', route: 'logeventossistema' },
+  { label: 'Muestra', table: 'Muestra', route: 'muestra' },
+  { label: 'Municipio', table: 'Municipio', route: 'municipio' },
+  { label: 'Norma', table: 'Norma', route: 'norma' },
+  { label: 'Notificacion', table: 'Notificacion', route: 'notificacion' },
+  { label: 'Parametro', table: 'Parametro', route: 'parametro' },
+  { label: 'ParametroDeTipoMuestra', table: 'ParametroDeTipoMuestra', route: 'parametrodetipomuestra' },
+  { label: 'Provincia', table: 'Provincia', route: 'provincia' },
+  { label: 'Prueba', table: 'Prueba', route: 'prueba' },
+  { label: 'Resultado', table: 'Resultado', route: 'resultado' },
+  { label: 'Rolusuario', table: 'Rolusuario', route: 'rolusuario' },
+  { label: 'TipoMuestra', table: 'TipoMuestra', route: 'tipomuestra' },
+  { label: 'TipoPrueba', table: 'TipoPrueba', route: 'tipoprueba' },
+  { label: 'Usuario', table: 'Usuario', route: 'usuario' },
   // Agrega más tablas si las tienes
 ];
 
 const API_BASE = '/api';
 
 export default function PanelAdmin() {
-  const [tabla, setTabla] = useState('');
+  const [tablaRuta, setTablaRuta] = useState('');
   const [columns, setColumns] = useState([]);
   const [formData, setFormData] = useState({});
   const [result, setResult] = useState(null);
@@ -37,10 +37,12 @@ export default function PanelAdmin() {
   const [upserting, setUpserting] = useState(false);
 
   // Obtiene metadata y busca automáticamente al seleccionar la tabla
+  const tablaSeleccionada = tablas.find((t) => t.route === tablaRuta);
+
   useEffect(() => {
-    if (tabla) {
+    if (tablaSeleccionada) {
       setLoading(true);
-      fetch(`${API_BASE}/metadata/${tabla}`)
+      fetch(`${API_BASE}/metadata/${tablaSeleccionada.table}`)
         .then(res => res.json())
         .then(res => {
           setColumns(res.columns || []);
@@ -48,7 +50,7 @@ export default function PanelAdmin() {
           setResult(null);
           setUpsertResult(null);
           // Realiza búsqueda automática con todos los campos en null
-          return fetch(`${API_BASE}/${tabla}/get`, {
+          return fetch(`${API_BASE}/${tablaSeleccionada.route}/get`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ args: (res.columns || []).map(() => null) })
@@ -62,9 +64,9 @@ export default function PanelAdmin() {
           setColumns([]);
           setResult({ error: 'Error en la petición' });
         })
-        .finally(() => setLoading(false));
+          .finally(() => setLoading(false));
     }
-  }, [tabla]);
+        }, [tablaSeleccionada]);
 
   const handleChange = (col, value) => {
     setFormData({ ...formData, [col.COLUMN_NAME]: value });
@@ -79,7 +81,11 @@ export default function PanelAdmin() {
         ? formData[col.COLUMN_NAME]
         : null
       );
-      const endpoint = `${API_BASE}/${tabla}/get`;
+      if (!tablaSeleccionada) {
+        setResult({ error: 'Selecciona una tabla.' });
+        return;
+      }
+      const endpoint = `${API_BASE}/${tablaSeleccionada.route}/get`;
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +110,11 @@ export default function PanelAdmin() {
         ? formData[col.COLUMN_NAME]
         : null
       );
-      const endpoint = `${API_BASE}/${tabla}/set`;
+      if (!tablaSeleccionada) {
+        setUpsertResult({ error: 'Selecciona una tabla.' });
+        return;
+      }
+      const endpoint = `${API_BASE}/${tablaSeleccionada.route}/set`;
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,13 +150,13 @@ export default function PanelAdmin() {
       <div style={{ marginBottom: 16 }}>
         <label>
           Selecciona tabla:{' '}
-          <select value={tabla} onChange={e => setTabla(e.target.value)}>
+          <select value={tablaRuta} onChange={e => setTablaRuta(e.target.value)}>
             <option value="">--</option>
-            {tablas.map(t => <option key={t} value={t}>{t}</option>)}
+            {tablas.map(t => <option key={t.route} value={t.route}>{t.label}</option>)}
           </select>
         </label>
       </div>
-      {tabla && (
+      {tablaSeleccionada && (
         <>
           <form onSubmit={handleBuscar} style={{ marginBottom: 24 }}>
             <h3>Buscar por atributos</h3>

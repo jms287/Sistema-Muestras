@@ -16,7 +16,7 @@ async function apiCall(endpoint, args = []) {
 }
 
 // ==================== COMPONENTE PRINCIPAL ====================
-export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra, onRealizarPrueba, vieneDeVerMuestra = false }) {
+export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra, onRealizarPrueba, vieneDeVerMuestra = false, refreshToken = 0 }) {
   const [asignacion, setAsignacion] = useState(null);
   const [muestra, setMuestra] = useState(null);
   const [codigoMuestra, setCodigoMuestra] = useState('');
@@ -45,6 +45,65 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
   const [confirmarDevolver, setConfirmarDevolver] = useState(false);
   const [confirmarFinalizar, setConfirmarFinalizar] = useState(false);
 
+  const getEtiquetasContexto = (faseOverride = null) => {
+    const rol = user?.id_rol_usuario;
+    const fase = faseOverride ?? asignacion?.numero_fase_asignacion;
+
+    if (rol === 2 || fase === 1) {
+      return {
+        titulo: 'Muestra',
+        plural: 'Muestras',
+        volver: 'Ver Muestras Registradas',
+        fechas: 'Fechas del Registro',
+        loading: 'Cargando datos de la muestra...',
+        notFound: 'Muestra no encontrada',
+        errorLoad: 'Error al cargar muestra',
+        devolver: 'Devolver Muestra',
+        finalizar: 'Finalizar Registro'
+      };
+    }
+
+    if (rol === 3 || fase === 2) {
+      return {
+        titulo: 'Muestra',
+        plural: 'Pruebas',
+        volver: 'Ver Pruebas',
+        fechas: 'Fechas de las Pruebas',
+        loading: 'Cargando datos de la muestra...',
+        notFound: 'Muestra no encontrada',
+        errorLoad: 'Error al cargar muestra',
+        devolver: 'Devolver Muestra',
+        finalizar: 'Finalizar Muestra'
+      };
+    }
+
+    if (rol === 4 || fase === 3) {
+      return {
+        titulo: 'Evaluación',
+        plural: 'Evaluaciones',
+        volver: 'Evaluar Muestras',
+        fechas: 'Fechas de la Evaluación',
+        loading: 'Cargando datos de la evaluación...',
+        notFound: 'Evaluación no encontrada',
+        errorLoad: 'Error al cargar evaluación',
+        devolver: 'Devolver Evaluación',
+        finalizar: 'Finalizar Evaluación'
+      };
+    }
+
+    return {
+      titulo: 'Actividad',
+      plural: 'Actividades',
+      volver: 'Ver Actividades',
+      fechas: 'Fechas de la Actividad',
+      loading: 'Cargando datos de la actividad...',
+      notFound: 'Actividad no encontrada',
+      errorLoad: 'Error al cargar actividad',
+      devolver: 'Devolver Actividad',
+      finalizar: 'Finalizar Actividad'
+    };
+  };
+
   // Establecer estado completado si viene de ver-muestra y es fase 1
   useEffect(() => {
     if (vieneDeVerMuestra && asignacion && asignacion.numero_fase_asignacion === 1) {
@@ -54,7 +113,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
 
   useEffect(() => {
     loadAsignacion();
-  }, [asignacionId]);
+  }, [asignacionId, refreshToken]);
 
   const loadAsignacion = async () => {
     try {
@@ -153,10 +212,10 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
         }
 
       } else {
-        setError('Asignación no encontrada');
+        setError(getEtiquetasContexto().notFound);
       }
     } catch (err) {
-      setError('Error al cargar asignación: ' + err.message);
+      setError(`${getEtiquetasContexto().errorLoad}: ${err.message}`);
       console.error(err);
     } finally {
       setLoading(false);
@@ -178,6 +237,22 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
         
         for (const tipoPrueba of tiposPruebaData) {
           console.log(`\n=== Verificando tipo de prueba: ${tipoPrueba.nombre_tipo_prueba} ===`);
+
+          const parametrosData = await apiCall('/parametro/get', [
+            null,
+            null,
+            tipoPrueba.id_tipo_prueba,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null
+          ]);
+
+          const parametros = parametrosData || [];
+          let resultadosMap = {};
           
           // Buscar si existe una prueba activa para este tipo de prueba y muestra
           const pruebasExistentes = await apiCall('/prueba/get', [
@@ -215,6 +290,11 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
             console.log('Resultados encontrados:', resultados);
             const tieneResultados = resultados && resultados.length > 0;
             console.log('¿Tiene resultados?:', tieneResultados);
+
+            resultadosMap = (resultados || []).reduce((acc, resultado) => {
+              acc[resultado.id_parametro] = resultado;
+              return acc;
+            }, {});
             
             // La prueba está validada si el campo prueba_validada es true
             const validada = prueba.prueba_validada === true || prueba.prueba_validada === 1;
@@ -224,7 +304,22 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
               existe: true,
               tieneResultados: tieneResultados,
               validada: validada,
-              idPrueba: prueba.id_prueba
+              idPrueba: prueba.id_prueba,
+              parametrosDetalle: parametros.map((parametro) => {
+                const resultado = resultadosMap[parametro.id_parametro];
+                const valorNumerico = resultado?.resultado_numerico;
+                const valorTexto = resultado?.resultado_texto;
+                const valor = valorNumerico !== null && valorNumerico !== undefined
+                  ? valorNumerico
+                  : (valorTexto || null);
+                const valorFallback = tieneResultados ? '-' : 'Pendiente';
+
+                return {
+                  id: parametro.id_parametro,
+                  nombre: parametro.nombre_parametro,
+                  valor: valor ?? valorFallback
+                };
+              })
             };
             
             console.log('Estado final para esta prueba:', estadosTemp[tipoPrueba.id_tipo_prueba]);
@@ -234,7 +329,8 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
               existe: false,
               tieneResultados: false,
               validada: false,
-              idPrueba: null
+              idPrueba: null,
+              parametrosDetalle: []
             };
           }
         }
@@ -461,7 +557,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
       ]);
 
       setShowDevolverModal(false);
-      setSuccess(`Asignación devuelta exitosamente - Código de muestra: ${codigoMuestra}`);
+      setSuccess(`${etiquetas.titulo} devuelta exitosamente - Codigo de muestra: ${codigoMuestra}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       setTimeout(() => {
@@ -470,7 +566,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
 
     } catch (err) {
       setShowDevolverModal(false);
-      setError('Error al devolver asignación: ' + err.message);
+      setError(`Error al devolver ${etiquetas.titulo.toLowerCase()}: ${err.message}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       console.error(err);
     }
@@ -491,7 +587,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
       ]);
 
       setShowFinalizarModal(false);
-      setSuccess(`Asignación finalizada exitosamente - Código de muestra: ${codigoMuestra}`);
+      setSuccess(`${etiquetas.titulo} finalizada exitosamente - Codigo de muestra: ${codigoMuestra}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       setTimeout(() => {
@@ -500,7 +596,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
 
     } catch (err) {
       setShowFinalizarModal(false);
-      setError('Error al finalizar asignación: ' + err.message);
+      setError(`Error al finalizar ${etiquetas.titulo.toLowerCase()}: ${err.message}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       console.error(err);
     }
@@ -547,9 +643,11 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
     return [];
   };
 
-  if (loading) return <div style={styles.loading}>Cargando datos de la asignación...</div>;
+  const etiquetas = getEtiquetasContexto();
+
+  if (loading) return <div style={styles.loading}>{etiquetas.loading}</div>;
   if (error && !asignacion) return <div style={styles.error}>{error}</div>;
-  if (!asignacion) return <div style={styles.error}>Asignación no encontrada</div>;
+  if (!asignacion) return <div style={styles.error}>{etiquetas.notFound}</div>;
 
   const estadoColor = 
     asignacion.estado_asignacion === 'Pendiente' ? '#94a3b8' :
@@ -583,6 +681,20 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
   const enProceso = asignacion.estado_asignacion === 'En proceso';
 
   const resumenDatos = getResumenDatos();
+
+  const todasPruebasValidadas = asignacion.numero_fase_asignacion === 3
+    ? tiposPrueba.every(tp => estadosPruebas[tp.id_tipo_prueba]?.validada === true)
+    : accionCompletada;
+
+  const accionCompletadaFinal = asignacion.numero_fase_asignacion === 3
+    ? (todasPruebasValidadas && (muestra?.muestra_validada === true || muestra?.muestra_validada === 1))
+    : accionCompletada;
+
+  const textoPendienteFinalizar = asignacion.numero_fase_asignacion === 1
+    ? 'el registro'
+    : (user?.id_rol_usuario === 3
+        ? 'la evaluación'
+        : (asignacion.numero_fase_asignacion === 2 ? 'todas las pruebas' : 'la acción'));
 
   // Obtener nombre de la acción según la fase
   const getNombreAccion = () => {
@@ -677,13 +789,13 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>
-            Asignación - <span style={{ color: estadoColor }}>{asignacion.estado_asignacion}</span>
+            {etiquetas.titulo} - <span style={{ color: estadoColor }}>{asignacion.estado_asignacion}</span>
           </h1>
           <h2 style={styles.subtitle}>{codigoMuestra} - Fase #{asignacion.numero_fase_asignacion}</h2>
         </div>
         <div style={styles.headerRight}>
           <button onClick={onBack} style={styles.backButton}>
-            ← Mis Asignaciones
+            ← {etiquetas.volver}
           </button>
         </div>
       </div>
@@ -694,7 +806,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
       <div style={styles.content}>
         {/* Fechas */}
         <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>Fechas de la Asignación</h3>
+          <h3 style={styles.sectionTitle}>{etiquetas.fechas}</h3>
           <div style={styles.grid}>
             <div style={styles.field}>
               <label style={styles.label}>Fecha de Inicio:</label>
@@ -740,8 +852,8 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
           <div style={styles.section}>
             <div style={styles.accionHeader}>
               <h3 style={styles.sectionTitle}>{getNombreAccion()}</h3>
-              <span style={accionCompletada ? styles.estadoCompletado : styles.estadoPendiente}>
-                {accionCompletada ? '✓ Completada' : '✗ Pendiente'}
+              <span style={accionCompletadaFinal ? styles.estadoCompletado : styles.estadoPendiente}>
+                {accionCompletadaFinal ? '✓ Completada' : '✗ Pendiente'}
               </span>
             </div>
             
@@ -792,6 +904,8 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
                 validada: false,
                 idPrueba: null
               };
+
+              const pruebaCompletada = estadoPrueba.tieneResultados === true;
               
               // Determinar el texto, estilo y funcionalidad del botón
               let textoBoton = '➕ Crear Prueba';
@@ -801,11 +915,16 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
               
               if (estadoPrueba.existe) {
                 if (estadoPrueba.tieneResultados) {
-                  // Si tiene resultados, mostrar "Ver Prueba" (deshabilitado por ahora)
+                  // Si tiene resultados, permitir ver la prueba
                   textoBoton = '👁️ Ver Prueba';
                   estiloBoton = styles.verPruebaButton;
-                  puedeClickear = false;
-                  onClickHandler = null;
+                  puedeClickear = true;
+                  onClickHandler = () => onRealizarPrueba({
+                    idMuestra: muestra.id_muestra,
+                    idTipoPrueba: tipoPrueba.id_tipo_prueba,
+                    idAsignacion: asignacionId,
+                    idPrueba: estadoPrueba.idPrueba
+                  });
                 } else {
                   // Si existe pero no tiene resultados, mostrar "Seguir Prueba"
                   textoBoton = '▶️ Seguir Prueba';
@@ -822,15 +941,22 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
                       <h5 style={styles.accionCardTitle}>
                         Realizar Prueba {formatSentenceCase(tipoPrueba.nombre_tipo_prueba)}
                       </h5>
-                      <span style={estadoPrueba.validada ? styles.estadoCompletadoSmall : styles.estadoPendienteSmall}>
-                        {estadoPrueba.validada ? '✓ Completada' : '✗ Pendiente'}
+                      <span style={pruebaCompletada ? styles.estadoCompletadoSmall : styles.estadoPendienteSmall}>
+                        {pruebaCompletada ? '✓ Completada' : '✗ Pendiente'}
                       </span>
                     </div>
                     <div style={styles.resumenGrid}>
-                      <div style={styles.resumenItem}><strong>Placeholder 1:</strong> Dato temporal</div>
-                      <div style={styles.resumenItem}><strong>Placeholder 2:</strong> Dato temporal</div>
-                      <div style={styles.resumenItem}><strong>Placeholder 3:</strong> Dato temporal</div>
-                      <div style={styles.resumenItem}><strong>Placeholder 4:</strong> Dato temporal</div>
+                      {estadoPrueba.existe ? (
+                        estadoPrueba.parametrosDetalle?.length ? (
+                          estadoPrueba.parametrosDetalle.map((parametro) => (
+                            <div key={parametro.id} style={styles.resumenItem}>
+                              <strong>{parametro.nombre}:</strong> {parametro.valor}
+                            </div>
+                          ))
+                        ) : (
+                          <div style={styles.resumenItem}>Sin parametros configurados</div>
+                        )
+                      ) : null}
                     </div>
                   </div>
                   <div style={styles.accionButton}>
@@ -932,8 +1058,15 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
                       <div style={styles.resumenItem}>
                         <strong>ID Prueba:</strong> {estadoPrueba.idPrueba || '–'}
                       </div>
-                      <div style={styles.resumenItem}><strong>Placeholder 3:</strong> Dato temporal</div>
-                      <div style={styles.resumenItem}><strong>Placeholder 4:</strong> Dato temporal</div>
+                      {estadoPrueba.parametrosDetalle?.length ? (
+                        estadoPrueba.parametrosDetalle.map((parametro) => (
+                          <div key={parametro.id} style={styles.resumenItem}>
+                            <strong>{parametro.nombre}:</strong> {parametro.valor}
+                          </div>
+                        ))
+                      ) : (
+                        <div style={styles.resumenItem}>Sin parametros configurados</div>
+                      )}
                     </div>
                   </div>
                   <div style={styles.accionButton}>
@@ -1010,21 +1143,21 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
           <div style={styles.buttonGroup}>
             {puedeDevolver && (
               <button onClick={handleDevolverClick} style={styles.devolverButton}>
-                ↩️ Devolver Asignación
+                ↩️ {etiquetas.devolver}
               </button>
             )}
             {puedeFinalizar && (
               <div style={styles.finalizarContainer}>
                 <button 
                   onClick={handleFinalizarClick} 
-                  style={accionCompletada ? styles.finalizarButton : styles.finalizarButtonDisabled}
-                  disabled={!accionCompletada}
+                  style={accionCompletadaFinal ? styles.finalizarButton : styles.finalizarButtonDisabled}
+                  disabled={!accionCompletadaFinal}
                 >
-                  ✓ Finalizar Asignación
+                  ✓ {etiquetas.finalizar}
                 </button>
-                {!accionCompletada && (
+                {!accionCompletadaFinal && (
                   <div style={styles.warningMessage}>
-                    Debe completar {asignacion.numero_fase_asignacion === 2 ? 'todas las pruebas' : 'la acción'} antes de finalizar
+                    Debe completar {textoPendienteFinalizar} antes de finalizar
                   </div>
                 )}
               </div>
@@ -1037,7 +1170,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
       {showDevolverModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
-            <h3 style={styles.modalTitle}>Devolver Asignación</h3>
+            <h3 style={styles.modalTitle}>{etiquetas.devolver}</h3>
             
             <div style={styles.formGroup}>
               <label style={styles.label}>Motivos de devolución: *</label>
@@ -1058,7 +1191,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
                 style={styles.checkbox}
               />
               <label style={styles.checkboxLabel}>
-                Confirmo que deseo devolver la asignación de la muestra <strong>{codigoMuestra}</strong>
+                Confirmo que deseo devolver la {etiquetas.titulo.toLowerCase()} <strong>{codigoMuestra}</strong>
               </label>
             </div>
 
@@ -1084,7 +1217,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
       {showFinalizarModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
-            <h3 style={styles.modalTitle}>Finalizar Asignación</h3>
+            <h3 style={styles.modalTitle}>{etiquetas.finalizar}</h3>
             
             {(asignacion.numero_fase_asignacion === 1 || asignacion.numero_fase_asignacion === 2) && (
               <div style={styles.formGroup}>
@@ -1107,7 +1240,7 @@ export default function VerAsignacion({ asignacionId, user, onBack, onVerMuestra
                 style={styles.checkbox}
               />
               <label style={styles.checkboxLabel}>
-                Confirmo que deseo finalizar la asignación de la muestra <strong>{codigoMuestra}</strong>
+                Confirmo que deseo finalizar la {etiquetas.titulo.toLowerCase()} <strong>{codigoMuestra}</strong>
               </label>
             </div>
 

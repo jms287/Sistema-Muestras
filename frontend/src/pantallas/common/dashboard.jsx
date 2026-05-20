@@ -30,6 +30,7 @@ export default function Dashboard({ user, onLogout }) {
   const [origenNavegacion, setOrigenNavegacion] = useState(null) // 'asignacion' o null
   const [vieneDeVerMuestra, setVieneDeVerMuestra] = useState(false)
   const [datosPrueba, setDatosPrueba] = useState(null)
+  const [verAsignacionRefresh, setVerAsignacionRefresh] = useState(0)
 
   const handleMuestraCreada = (idMuestra) => {
     setMuestraIdActual(idMuestra)
@@ -77,6 +78,7 @@ export default function Dashboard({ user, onLogout }) {
 
   const handleVolverDeRealizarPrueba = () => {
     setDatosPrueba(null)
+    setVerAsignacionRefresh((prev) => prev + 1)
     setModuloActivo('ver-asignacion')
   }
 
@@ -87,19 +89,19 @@ export default function Dashboard({ user, onLogout }) {
     ]
     if (rol === 2) {
       opciones.push(
-        { id: 'mis-asignaciones', label: 'Mis Asignaciones', icon: '📋', roles: [2] },
+        { id: 'mis-asignaciones', label: 'Ver Muestras Registradas', icon: '📋', roles: [2] },
         { id: 'registrar-muestra', label: 'Registrar Muestra', icon: '📝', roles: [2] }
       )
     }
     if (rol === 3) {
       opciones.push(
-        { id: 'mis-asignaciones', label: 'Mis Asignaciones', icon: '📋', roles: [3] }
+        { id: 'mis-asignaciones', label: 'Ver Pruebas', icon: '📋', roles: [3] }
       )
     }
     if (rol === 4) {
       opciones.push(
-        { id: 'mis-asignaciones', label: 'Mis Asignaciones', icon: '📋', roles: [4] },
-        { id: 'evaluar-muestras', label: 'Evaluar Muestras', icon: '✓', roles: [4] }
+        { id: 'mis-asignaciones', label: 'Evaluar Muestras', icon: '📋', roles: [4] },
+        { id: 'evaluar-muestras', label: 'Ratificar Muestras', icon: '✓', roles: [4] }
       )
     }
     if (rol === 5) {
@@ -139,6 +141,7 @@ export default function Dashboard({ user, onLogout }) {
           onVerMuestra={handleVerMuestraDesdeAsignacion}
           onRealizarPrueba={handleRealizarPrueba}
           vieneDeVerMuestra={vieneDeVerMuestra}
+          refreshToken={verAsignacionRefresh}
         />;
       case 'mis-asignaciones':
         return <MisAsignaciones user={user} onVerAsignacion={handleVerAsignacion} />
@@ -159,7 +162,7 @@ export default function Dashboard({ user, onLogout }) {
           return <PantallaInicio user={user} />
         }
       case 'evaluar-muestras':
-        return <PlaceholderModule titulo="Evaluar Muestras" />
+        return <PlaceholderModule titulo="Ratificar Muestras" />
         case 'mis-solicitudes':
           return <MisSolicitudes user={user} />;
       case 'resultados':

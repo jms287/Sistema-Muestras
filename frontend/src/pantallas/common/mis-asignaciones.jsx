@@ -21,6 +21,36 @@ export default function MisAsignaciones({ user, onVerAsignacion }) {
   const [error, setError] = useState('');
   const [filtro, setFiltro] = useState('En proceso');
 
+  const etiquetas = (() => {
+    const rol = user?.id_rol_usuario;
+    if (rol === 2) {
+      return {
+        titulo: 'Ver Muestras Registradas',
+        subtitulo: 'Muestras registradas por ti:',
+        emptyText: 'No tienes muestras registradas.'
+      };
+    }
+    if (rol === 3) {
+      return {
+        titulo: 'Ver Pruebas',
+        subtitulo: 'Pruebas asignadas a ti:',
+        emptyText: 'No tienes pruebas asignadas.'
+      };
+    }
+    if (rol === 4) {
+      return {
+        titulo: 'Evaluar Muestras',
+        subtitulo: 'Muestras pendientes de evaluación:',
+        emptyText: 'No tienes muestras pendientes de evaluación.'
+      };
+    }
+    return {
+      titulo: 'Mis Asignaciones',
+      subtitulo: 'Asignaciones asignadas a ti:',
+      emptyText: 'No tienes asignaciones registradas.'
+    };
+  })();
+
   useEffect(() => {
     async function fetchAsignaciones() {
       setLoading(true);
@@ -98,9 +128,9 @@ export default function MisAsignaciones({ user, onVerAsignacion }) {
 
   return (
     <div className="moduleContainer">
-      <h1>Mis Asignaciones</h1>
+      <h1>{etiquetas.titulo}</h1>
       <div className="infoBox">
-        <h3>Asignaciones asignadas a ti:</h3>
+        <h3>{etiquetas.subtitulo}</h3>
         <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
           <button
             type="button"
@@ -138,7 +168,7 @@ export default function MisAsignaciones({ user, onVerAsignacion }) {
         
         {loading && <p>Cargando asignaciones...</p>}
         {error && <div style={{ color: 'red' }}>{error}</div>}
-        {!loading && asignacionesFiltradas.length === 0 && <p>No tienes asignaciones registradas.</p>}
+        {!loading && asignacionesFiltradas.length === 0 && <p>{etiquetas.emptyText}</p>}
         {!loading && asignacionesFiltradas.length > 0 && (
           <table className="asignacionesTable">
             <thead>
