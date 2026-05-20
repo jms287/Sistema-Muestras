@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import './signup.css'
+import { buildAuthHeaders } from '../../utils/auth.js'
 
 const API_BASE = '/api'
+const PASSWORD_MIN_LENGTH = 8
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/
 
 export default function SignUp({ onBackToSignIn, onRegister }) {
   const [form, setForm] = useState({
@@ -30,9 +33,8 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
       try {
         const res = await fetch(`${API_BASE}/empresa/get`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
           body: JSON.stringify({
-            // spGetEmpresa espera muchos params; este array coincide con lo que ya usabas
             args: [null, null, null, null, null, null, null, null, null, true, null, null],
           }),
         })
@@ -41,9 +43,11 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
           setEmpresas(result.data || [])
         } else {
           console.error('empresa/get backend error:', result)
+          setEmpresas([])
         }
       } catch (err) {
         console.error('Error cargando empresas', err)
+        setEmpresas([])
       }
     }
     loadEmpresas()
@@ -53,22 +57,21 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
   useEffect(() => {
     async function loadProvincias() {
       try {
-        // spGetProvincia(p_id_provincia, p_nombre_provincia, p_estado_activo_provincia)
-        // para obtener provincias activas pasamos [null, null, true]
         const res = await fetch(`${API_BASE}/provincia/get`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
           body: JSON.stringify({ args: [null, null, true] }),
         })
         const result = await res.json()
         if (res.ok && result.success) {
-          // DB devuelve objetos con id_provincia, nombre_provincia
           setProvincias(Array.isArray(result.data) ? result.data : [])
         } else {
           console.error('provincia/get backend error:', result)
+          setProvincias([])
         }
       } catch (err) {
         console.error('Error cargando provincias', err)
+        setProvincias([])
       }
     }
     loadProvincias()
@@ -82,19 +85,15 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
         setForm((f) => ({ ...f, municipio_usuario: '' }))
         return
       }
-
       try {
-        // spGetMunicipio(p_id_municipio, p_nombre_municipio, p_id_provincia, p_estado_activo_municipio)
-        // queremos todos los municipios activos de la provincia => [null, null, id_provincia, true]
         const args = [null, null, Number(form.provincia_usuario), true]
         const res = await fetch(`${API_BASE}/municipio/get`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
           body: JSON.stringify({ args }),
         })
         const result = await res.json()
         if (res.ok && result.success) {
-          // DB devuelve id_municipio, nombre_municipio, id_provincia, ...
           setMunicipios(Array.isArray(result.data) ? result.data : [])
         } else {
           console.error('municipio/get backend error:', result)
@@ -132,6 +131,12 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
       return
     }
 
+    const passwordPolicyOk = PASSWORD_REGEX.test(form.password_usuario)
+    if (form.password_usuario.length < PASSWORD_MIN_LENGTH || !passwordPolicyOk) {
+      setError('La contrasena debe tener al menos 8 caracteres e incluir mayusculas, minusculas, numeros y un caracter especial.')
+      return
+    }
+
     setLoading(true)
     try {
       // Aquí enviamos el id_municipio al SP de usuario (si el SP acepta id_municipio)
@@ -155,9 +160,9 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
       // si necesita exactamente N argumentos para el SP, tu backend debe mapearlo.
       // Aquí enviamos el array con los campos que maneja spSetUsuario según script.
 
-      const res = await fetch(`${API_BASE}/usuario/set`, {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
         body: JSON.stringify({ args }),
       })
 
@@ -193,7 +198,7 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
 
   return (
     <div className="signup-container">
-      <form className="signup-form" onSubmit={handleSubmit}>
+      <form className="signup-form" onSubmit={handleSubmit} autoComplete="on">
         <h2 className="signup-title">Crear cuenta de solicitante</h2>
 
         {error && <div className="signup-error">{error}</div>}
@@ -233,6 +238,7 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
               value={form.correo_usuario}
               onChange={handleChange}
               required
+              autoComplete="email"
             />
           </div>
 
@@ -245,7 +251,12 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
               value={form.password_usuario}
               onChange={handleChange}
               required
+              autoComplete="new-password"
             />
+            <div className="signup-password-help">
+              Mínimo 8 caracteres, con mayúsculas, minúsculas, números y símbolos.
+              Usa un gestor de contraseñas para crear una clave segura.
+            </div>
           </div>
 
           <div className="signup-field">
@@ -267,18 +278,6 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
               name="direccion_usuario"
               type="text"
               value={form.direccion_usuario}
-              onChange={handleChange}
-              placeholder="Opcional"
-            />
-          </div>
-
-          <div className="signup-field">
-            <label htmlFor="sector_usuario">Sector</label>
-            <input
-              id="sector_usuario"
-              name="sector_usuario"
-              type="text"
-              value={form.sector_usuario}
               onChange={handleChange}
               placeholder="Opcional"
             />
@@ -322,6 +321,19 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
           </div>
 
           <div className="signup-field">
+            <label htmlFor="sector_usuario">Sector</label>
+            <input
+              id="sector_usuario"
+              name="sector_usuario"
+              type="text"
+              value={form.sector_usuario}
+              onChange={handleChange}
+              placeholder="Opcional"
+              disabled={!form.municipio_usuario}
+            />
+          </div>
+
+          <div className="signup-field">
             <label htmlFor="id_emp_usuario">Empresa *</label>
             <select
               id="id_emp_usuario"
@@ -339,6 +351,7 @@ export default function SignUp({ onBackToSignIn, onRegister }) {
             </select>
           </div>
         </div>
+
 
         <button type="submit" className="signup-btn" disabled={loading}>
           {loading ? 'Registrando...' : 'Crear cuenta'}

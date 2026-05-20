@@ -3,6 +3,13 @@ const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { requireRoles, ROLE } = require('../utils/auth');
+const {
+  ValidationError,
+  validateInteger,
+  validateStringBasics,
+  scanValue,
+} = require('../utils/validation');
 const router = express.Router();
 
 // Example route to test if the file is accessible
@@ -112,11 +119,31 @@ const plantillaConfig = {
   }
 };
 
-router.post('/descargar-pdf', async (req, res) => { // Elimina `requireAuth` temporalmente para probar
+router.post('/descargar-pdf', requireRoles([ROLE.ADMIN, ROLE.REGISTRADOR, ROLE.ANALISTA, ROLE.EVALUADOR, ROLE.SOLICITANTE]), async (req, res) => { // Elimina `requireAuth` temporalmente para probar
   try {
-    const { tipoMuestra, datosDB } = req.body;
-    const config = plantillaConfig[tipoMuestra];
+    const { tipoMuestra, datosDB } = req.body || {};
+    const tipoMuestraId = validateInteger(tipoMuestra, 'tipoMuestra', { min: 1 });
+    const config = plantillaConfig[tipoMuestraId];
     if (!config) return res.status(400).json({ success: false, message: 'Tipo de muestra inválido' });
+
+    if (!datosDB || typeof datosDB !== 'object') {
+      return res.status(400).json({ success: false, message: 'Datos de muestra inválidos' });
+    }
+
+    scanValue(datosDB, 'datosDB');
+    if (Array.isArray(datosDB.resultadosPrueba)) {
+      datosDB.resultadosPrueba.forEach((item, index) => {
+        if (item == null || typeof item !== 'object') {
+          throw new ValidationError(`Resultado invalido en resultadosPrueba[${index}]`);
+        }
+        if (item.resultado_texto != null) {
+          validateStringBasics(item.resultado_texto, `resultadosPrueba[${index}].resultado_texto`);
+        }
+        if (item.resultado_numerico != null && Number.isNaN(Number(item.resultado_numerico))) {
+          throw new ValidationError(`Numero invalido en resultadosPrueba[${index}].resultado_numerico`);
+        }
+      });
+    }
 
     const plantillaPath = path.join(__dirname, '../plantillas excel', config.nombre); // Corrected path
     const tempExcel = path.join(__dirname, '../temp', `temp_${Date.now()}.xlsx`); // Ensure temp path is correct
@@ -148,16 +175,18 @@ router.post('/descargar-pdf', async (req, res) => { // Elimina `requireAuth` tem
         .pipe(res);
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    const status = err.statusCode || 500;
+    res.status(status).json({ success: false, message: err.message });
   }
 });
 
-router.get('/descargar-excel/:idMuestra', async (req, res) => {
+router.get('/descargar-excel/:idMuestra', requireRoles([ROLE.ADMIN, ROLE.REGISTRADOR, ROLE.ANALISTA, ROLE.EVALUADOR, ROLE.SOLICITANTE]), async (req, res) => {
   try {
     const { idMuestra } = req.params;
+    const muestraId = validateInteger(idMuestra, 'idMuestra', { min: 1 });
 
     // Obtener los datos de la muestra desde la base de datos
-    const muestra = await obtenerDatosMuestra(idMuestra); // Implementa esta función según tu lógica
+    const muestra = await obtenerDatosMuestra(muestraId); // Implementa esta función según tu lógica
     if (!muestra) {
       return res.status(404).json({ success: false, message: 'Muestra no encontrada' });
     }
@@ -197,7 +226,8 @@ router.get('/descargar-excel/:idMuestra', async (req, res) => {
         .pipe(res);
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    const status = err.statusCode || 500;
+    res.status(status).json({ success: false, message: err.message });
   }
 });
 

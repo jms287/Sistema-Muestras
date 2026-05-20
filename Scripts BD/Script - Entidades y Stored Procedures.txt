@@ -1474,6 +1474,7 @@ BEGIN
     END IF;
     
     IF p_operacion = 1 THEN
+        -- p_password_usuario debe llegar hasheado desde el backend (bcrypt)
         INSERT INTO Usuario (cedula_usuario, nombre_usuario, correo_usuario, password_usuario, tel_contacto_usuario, id_rol_usuario, id_emp_usuario, direccion_usuario, sector_usuario, id_municipio_usuario)
         VALUES (p_cedula_usuario, p_nombre_usuario, p_correo_usuario, p_password_usuario, p_tel_contacto_usuario, p_id_rol_usuario, p_id_emp_usuario, p_direccion_usuario, p_sector_usuario, p_id_municipio_usuario);
 		

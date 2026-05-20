@@ -28,6 +28,15 @@ html, body, #root {
     flex-direction: column;
     gap: 1.2rem;
   }
+
+  .signin-app-title {
+    text-align: center;
+    margin: 0;
+    color: #c1121f;
+    font-weight: 700;
+    font-size: 1.7rem;
+    letter-spacing: 0.04em;
+  }
   
   .signin-title {
     text-align: center;
@@ -89,6 +98,7 @@ html, body, #root {
     font-size: 0.98rem;
     margin-top: 0.5rem;
   }
+
   
   /* AGREGAR ESTILOS PARA EL FOOTER Y ENLACE DE REGISTRO */
   .signin-footer {

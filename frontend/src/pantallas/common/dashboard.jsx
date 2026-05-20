@@ -7,6 +7,7 @@ import MisAsignaciones from './mis-asignaciones.jsx'
 import RealizarPrueba from '../analista/realizar-prueba.jsx'
 import MisSolicitudes from '../cliente/mis-solicitudes.jsx'
 import PanelAdmin from '../admin/panel-admin.jsx'
+import { buildAuthHeaders } from '../../utils/auth.js'
 
 // <--- Importa el nuevo archivo
 // import RealizarPruebas from '../analista/realizar-pruebas.jsx' // COMENTADO TEMPORALMENTE
@@ -15,7 +16,7 @@ const API_BASE = '/api'
 async function apiCall(endpoint, args = []) {
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
     body: JSON.stringify({ args })
   })
   const json = await res.json()

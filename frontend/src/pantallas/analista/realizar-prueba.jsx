@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { buildAuthHeaders } from '../../utils/auth.js';
 
 // ==================== API UTILS ====================
 const API_BASE = '/api';
@@ -6,7 +7,7 @@ const API_BASE = '/api';
 async function apiCall(endpoint, args = []) {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
     body: JSON.stringify({ args })
   });
   const result = await response.json();
@@ -385,6 +386,9 @@ export default function RealizarPrueba({ idMuestra, idTipoPrueba, idAsignacion, 
                           step="0.01"
                           value={resultado.valor}
                           onChange={(e) => handleResultadoChange(param.id_parametro, 'valor', e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'e' || e.key === 'E') e.preventDefault();
+                          }}
                           required
                           style={styles.input}
                           placeholder="Ingrese valor numérico"

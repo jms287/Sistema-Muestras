@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { getTodayForInput } from '../../utils/dateUtils';
 
+import { buildAuthHeaders } from '../../utils/auth.js';
+
 // ==================== API UTILS ====================
 const API_BASE = '/api';
 
 async function apiCall(endpoint, args = []) {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...buildAuthHeaders() },
     body: JSON.stringify({ args })
   });
   const result = await response.json();
@@ -445,6 +447,9 @@ export default function RegistrarMuestra({ user, onMuestraCreada }) {
                   name="temperatura_muestra"
                   value={formData.temperatura_muestra}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'e' || e.key === 'E') e.preventDefault();
+                  }}
                   style={styles.input}
                 />
               </div>
@@ -564,6 +569,9 @@ export default function RegistrarMuestra({ user, onMuestraCreada }) {
                   name="peso_neto_muestra"
                   value={formData.peso_neto_muestra}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'e' || e.key === 'E') e.preventDefault();
+                  }}
                   style={styles.input}
                 />
               </div>

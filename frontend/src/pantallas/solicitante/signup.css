@@ -59,10 +59,24 @@ html, body, #root {
   transition: border-color 0.2s;
 }
 
+.signup-field input:disabled,
+.signup-field select:disabled {
+  background-color: #eef2f7;
+  color: #8892a0;
+  cursor: not-allowed;
+}
+
 .signup-field input:focus,
 .signup-field select:focus {
   border-color: #2d6cdf;
   outline: none;
+}
+
+.signup-password-help {
+  font-size: 0.85rem;
+  color: #4a5568;
+  margin-top: 0.35rem;
+  line-height: 1.4;
 }
 
 .signup-btn {
@@ -109,6 +123,7 @@ html, body, #root {
   margin-top: 1rem;
   text-align: center;
 }
+
 
 .signup-back-link {
   background: none;
